@@ -1,0 +1,51 @@
+{% load static %}
+<!--start sidebar-->
+<aside class="sidebar-wrapper" data-simplebar="true">
+  <div class="sidebar-header">
+    <div class="logo-icon">
+      <img src="{% static 'images/logo-icon.png' %}" class="logo-img" alt="">
+    </div>
+    <div class="logo-name flex-grow-1">
+      <a href="{% url 'search_trends' %}" class="text-decoration-none"><h5 class="mb-0">SerpAPI Trends</h5></a>
+    </div>
+    <div class="sidebar-close">
+      <span class="material-icons-outlined">close</span>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+      <!--navigation-->
+      <ul class="metismenu" id="sidenav">
+        <li>
+          <a href="javascript:;" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">home</i>
+            </div>
+            <div class="menu-title">Dashboard</div>
+          </a>
+          <ul>
+            <li><a href="{% url 'search_trends' %}"><i class="material-icons-outlined">arrow_right</i>Search Trends</a>
+            </li>
+          </ul>
+        </li>
+        <li class="menu-label">Plans</li>
+        <li>
+          <a href="{% url 'pricing_page' %}">
+            <div class="parent-icon"><i class="material-icons-outlined">payments</i>
+            </div>
+            <div class="menu-title">Pricing</div>
+          </a>
+        </li>
+
+        <li class="menu-label">Others</li>
+
+        <li>
+          <a href="javascrpt:;">
+            <div class="parent-icon"><i class="material-icons-outlined">support</i>
+            </div>
+            <div class="menu-title">Support</div>
+          </a>
+        </li>
+       </ul>
+      <!--end navigation-->
+  </div>
+</aside>
+<!--end sidebar-->
