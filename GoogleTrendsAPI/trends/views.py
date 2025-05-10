@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from serpapi import GoogleSearch
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,6 +10,7 @@ import urllib.parse
 import json
 import math
 from datetime import datetime, timedelta
+from .models import UserSearch, UserPlan
 
 # SerpAPI Key
 SERPAPI_KEY = "3cdbacb30c99320871b97c3bd0e25fc93f64f7f17b936fe9d8171dab74d06147"
@@ -39,11 +41,29 @@ def map_platform(input_prop):
     return mapping.get(input_prop, 'web')
 
 @login_required
+def pricing_page(request):
+    """
+    View to display pricing plans
+    """
+    message = request.GET.get('message', None)
+    context = {
+        'user': request.user,
+        'message': message
+    }
+    return render(request, 'pricing-table.html', context)
+
+@login_required
 def search_trends(request):
     """
     View to handle Google Trends search form submission and display results
     """
     context = {'user': request.user}
+
+    # Get or create user plan
+    user_plan, created = UserPlan.objects.get_or_create(
+        user=request.user,
+        defaults={'plan_type': 'free', 'max_searches': 3}
+    )
 
     if request.method == 'POST':
         # Get form data
@@ -56,6 +76,14 @@ def search_trends(request):
         if not search_term:
             context['error'] = 'Please enter a search term'
             return render(request, 'form-wizard.html', context)
+
+        # Check if user has reached their search limit
+        search_count = UserSearch.objects.filter(user=request.user).count()
+
+        if search_count >= user_plan.max_searches:
+            # Redirect to pricing page with message
+            message = "You've reached your search limit. Please upgrade your plan to continue searching."
+            return redirect(f'/pricing/?message={message}')
 
         try:
             # Print debug info
@@ -605,6 +633,16 @@ def search_trends(request):
                     context['error'] = f'Error converting data to HTML: {str(e)}\n\nTraceback: {error_traceback}'
                     return render(request, 'form-wizard.html', context)
 
+                # Record this search
+                UserSearch.objects.create(
+                    user=request.user,
+                    search_term=search_term
+                )
+
+                # Get updated search count for display
+                search_count = UserSearch.objects.filter(user=request.user).count()
+                searches_left = max(0, user_plan.max_searches - search_count)
+
                 # Add results to context
                 context.update({
                     'search_term': search_term,
@@ -625,7 +663,10 @@ def search_trends(request):
                     'region_html': region_html,
                     'platform_html': platform_html,  # New platform data table
                     'region_label': region_label,  # Add the region label
-                    'has_results': True  # Flag to show results section
+                    'has_results': True,  # Flag to show results section
+                    'search_count': search_count,
+                    'searches_left': searches_left,
+                    'max_searches': user_plan.max_searches
                 })
 
                 return render(request, 'form-wizard.html', context)
