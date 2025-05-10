@@ -1,0 +1,827 @@
+{% load static %}
+<!doctype html>
+<html lang="en" data-bs-theme="blue-theme">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SerpAPI Trends | Form Wizard</title>
+  <!--favicon-->
+	<link rel="icon" href="{% static 'images/favicon-32x32.png' %}" type="image/png">
+  <!-- loader-->
+	<link href="{% static 'css/pace.min.css' %}" rel="stylesheet">
+	<script src="{% static 'js/pace.min.js' %}"></script>
+
+  <!--plugins-->
+  <link href="{% static 'plugins/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{% static 'plugins/metismenu/metisMenu.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'plugins/metismenu/mm-vertical.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'plugins/simplebar/css/simplebar.css' %}">
+  <link href="{% static 'plugins/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet">
+  <link href="{% static 'plugins/bs-stepper/css/bs-stepper.css' %}" rel="stylesheet">
+  <!--bootstrap css-->
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+  <!--main css-->
+  <link href="{% static 'css/bootstrap-extended.css' %}" rel="stylesheet">
+  <link href="{% static 'css/main.css' %}" rel="stylesheet">
+  <link href="{% static 'css/dark-theme.css' %}" rel="stylesheet">
+  <link href="{% static 'css/blue-theme.css' %}" rel="stylesheet">
+  <link href="{% static 'css/semi-dark.css' %}" rel="stylesheet">
+  <link href="{% static 'css/bordered-theme.css' %}" rel="stylesheet">
+  <link href="{% static 'css/responsive.css' %}" rel="stylesheet">
+
+  <!-- Custom styles for charts -->
+  <style>
+    .chart-container {
+      position: relative;
+      margin: auto;
+      height: 350px;
+      width: 100%;
+    }
+
+    #chartTypeSelector {
+      max-width: 300px;
+    }
+
+    /* Add some animation for chart transitions */
+    .chart-container {
+      transition: opacity 0.3s ease-in-out;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!--start header-->
+  <header class="top-header">
+    <nav class="navbar navbar-expand align-items-center gap-4">
+      <div class="btn-toggle">
+        <a href="javascript:;"><i class="material-icons-outlined">menu</i></a>
+      </div>
+      <div class="search-bar flex-grow-1">
+        <div class="position-relative">
+          <input class="form-control rounded-5 px-5 search-control d-lg-block d-none" type="text" placeholder="Search">
+          <span class="material-icons-outlined position-absolute d-lg-block d-none ms-3 translate-middle-y start-0 top-50">search</span>
+          <span class="material-icons-outlined position-absolute me-3 translate-middle-y end-0 top-50 search-close">close</span>
+          <div class="search-popup p-3">
+            <div class="card rounded-4 overflow-hidden">
+              <div class="card-header d-lg-none">
+                <div class="position-relative">
+                  <input class="form-control rounded-5 px-5 mobile-search-control" type="text" placeholder="Search">
+                  <span class="material-icons-outlined position-absolute ms-3 translate-middle-y start-0 top-50">search</span>
+                  <span class="material-icons-outlined position-absolute me-3 translate-middle-y end-0 top-50 mobile-search-close">close</span>
+                 </div>
+              </div>
+              <div class="card-body search-content">
+                <p class="search-title">Recent Searches</p>
+                <div class="d-flex align-items-start flex-wrap gap-2 kewords-wrapper">
+                  <a href="javascript:;" class="kewords"><span>Angular Template</span><i
+                      class="material-icons-outlined fs-6">search</i></a>
+                  <a href="javascript:;" class="kewords"><span>Dashboard</span><i
+                      class="material-icons-outlined fs-6">search</i></a>
+                  <a href="javascript:;" class="kewords"><span>Admin Template</span><i
+                      class="material-icons-outlined fs-6">search</i></a>
+                  <a href="javascript:;" class="kewords"><span>Bootstrap 5 Admin</span><i
+                      class="material-icons-outlined fs-6">search</i></a>
+                  <a href="javascript:;" class="kewords"><span>Html eCommerce</span><i
+                      class="material-icons-outlined fs-6">search</i></a>
+                  <a href="javascript:;" class="kewords"><span>Sass</span><i
+                      class="material-icons-outlined fs-6">search</i></a>
+                  <a href="javascript:;" class="kewords"><span>laravel 9</span><i
+                      class="material-icons-outlined fs-6">search</i></a>
+                </div>
+                <hr>
+                <p class="search-title">Tutorials</p>
+                <div class="search-list d-flex flex-column gap-2">
+                  <div class="search-list-item d-flex align-items-center gap-3">
+                    <div class="list-icon">
+                      <i class="material-icons-outlined fs-5">play_circle</i>
+                    </div>
+                    <div class="">
+                      <h5 class="mb-0 search-list-title ">Wordpress Tutorials</h5>
+                    </div>
+                  </div>
+                  <div class="search-list-item d-flex align-items-center gap-3">
+                    <div class="list-icon">
+                      <i class="material-icons-outlined fs-5">shopping_basket</i>
+                    </div>
+                    <div class="">
+                      <h5 class="mb-0 search-list-title">eCommerce Website Tutorials</h5>
+                    </div>
+                  </div>
+
+                  <div class="search-list-item d-flex align-items-center gap-3">
+                    <div class="list-icon">
+                      <i class="material-icons-outlined fs-5">laptop</i>
+                    </div>
+                    <div class="">
+                      <h5 class="mb-0 search-list-title">Responsive Design</h5>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <div class="card-footer text-center bg-transparent">
+                <a href="javascript:;" class="btn w-100">See All Search Results</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="navbar-nav gap-1 nav-right-links align-items-center">
+        <li class="nav-item d-lg-none mobile-search-btn">
+          <a class="nav-link" href="javascript:;"><i class="material-icons-outlined">search</i></a>
+        </li>
+
+
+
+
+        <li class="nav-item dropdown">
+
+          <div class="dropdown-menu dropdown-notify dropdown-menu-end shadow">
+            <div class="px-3 py-1 d-flex align-items-center justify-content-between border-bottom">
+
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle dropdown-toggle-nocaret option" type="button"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+                  <span class="material-icons-outlined">
+                    more_vert
+                  </span>
+                </button>
+
+              </div>
+            </div>
+            <div class="notify-list">
+
+              <div>
+                <a class="dropdown-item border-bottom py-2" href="javascript:;">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="user-wrapper bg-primary text-primary bg-opacity-10">
+                      <span>RS</span>
+                    </div>
+                    <div class="">
+                      <h5 class="notify-title">New Account Created</h5>
+                      <p class="mb-0 notify-desc">From USA an user has registered.</p>
+                      <p class="mb-0 notify-time">Yesterday</p>
+                    </div>
+                    <div class="notify-close position-absolute end-0 me-3">
+                      <i class="material-icons-outlined fs-6">close</i>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <div>
+                <a class="dropdown-item border-bottom py-2" href="javascript:;">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="">
+                      <img src="{% static 'images/apps/13.png' %}" class="rounded-circle" width="45" height="45" alt="">
+                    </div>
+                    <div class="">
+                      <h5 class="notify-title">Payment Recived</h5>
+                      <p class="mb-0 notify-desc">New payment recived successfully</p>
+                      <p class="mb-0 notify-time">1d ago</p>
+                    </div>
+                    <div class="notify-close position-absolute end-0 me-3">
+                      <i class="material-icons-outlined fs-6">close</i>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <div>
+                <a class="dropdown-item border-bottom py-2" href="javascript:;">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="">
+                      <img src="{% static 'images/apps/14.png' %}" class="rounded-circle" width="45" height="45" alt="">
+                    </div>
+                    <div class="">
+                      <h5 class="notify-title">New Order Recived</h5>
+                      <p class="mb-0 notify-desc">Recived new order from michle</p>
+                      <p class="mb-0 notify-time">2:15 AM</p>
+                    </div>
+                    <div class="notify-close position-absolute end-0 me-3">
+                      <i class="material-icons-outlined fs-6">close</i>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <div>
+                <a class="dropdown-item border-bottom py-2" href="javascript:;">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="">
+                      <img src="https://placehold.co/110x110/png" class="rounded-circle" width="45" height="45" alt="">
+                    </div>
+                    <div class="">
+                      <h5 class="notify-title">Congratulations Jhon</h5>
+                      <p class="mb-0 notify-desc">Many congtars jhon. You have won the gifts.</p>
+                      <p class="mb-0 notify-time">Today</p>
+                    </div>
+                    <div class="notify-close position-absolute end-0 me-3">
+                      <i class="material-icons-outlined fs-6">close</i>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <div>
+                <a class="dropdown-item py-2" href="javascript:;">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="user-wrapper bg-danger text-danger bg-opacity-10">
+                      <span>PK</span>
+                    </div>
+                    <div class="">
+                      <h5 class="notify-title">New Account Created</h5>
+                      <p class="mb-0 notify-desc">From USA an user has registered.</p>
+                      <p class="mb-0 notify-time">Yesterday</p>
+                    </div>
+                    <div class="notify-close position-absolute end-0 me-3">
+                      <i class="material-icons-outlined fs-6">close</i>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a href="javascrpt:;" class="dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">
+             <img src="https://placehold.co/110x110/png" class="rounded-circle p-1 border" width="45" height="45" alt="">
+          </a>
+          <div class="dropdown-menu dropdown-user dropdown-menu-end shadow">
+            <a class="dropdown-item  gap-2 py-2" href="javascript:;">
+              <div class="text-center">
+                <img src="https://placehold.co/110x110/png" class="rounded-circle p-1 shadow mb-3" width="90" height="90"
+                  alt="">
+                <h5 class="user-name mb-0 fw-bold">Hello, {{ user.username }}</h5>
+              </div>
+            </a>
+            <hr class="dropdown-divider">
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2">
+                <i class="material-icons-outlined">power_settings_new</i>Logout
+              </button>
+            </form>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <!--end top header-->
+
+
+  <!--start sidebar-->
+  <aside class="sidebar-wrapper" data-simplebar="true">
+    <div class="sidebar-header">
+      <div class="logo-icon">
+        <img src="{% static 'images/logo-icon.png' %}" class="logo-img" alt="">
+      </div>
+      <div class="logo-name flex-grow-1">
+        <h5 class="mb-0 ">SerpAPI Trends</h5>
+      </div>
+      <div class="sidebar-close">
+        <span class="material-icons-outlined">close</span>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+        <!--navigation-->
+        <ul class="metismenu" id="sidenav">
+          <li>
+            <a href="javascript:;" class="has-arrow">
+              <div class="parent-icon"><i class="material-icons-outlined">home</i>
+              </div>
+              <div class="menu-title">Dashboard</div>
+            </a>
+            <ul>
+              <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
+              </li>
+            </ul>
+          </li>
+          <li class="menu-label">UI Elements</li>
+          <li>
+            <a href="cards.html">
+              <div class="parent-icon"><i class="material-icons-outlined">inventory_2</i>
+              </div>
+              <div class="menu-title">Cards</div>
+            </a>
+          </li>
+
+
+          <li class="menu-label">Others</li>
+
+          <li>
+            <a href="javascrpt:;">
+              <div class="parent-icon"><i class="material-icons-outlined">support</i>
+              </div>
+              <div class="menu-title">Support</div>
+            </a>
+          </li>
+         </ul>
+        <!--end navigation-->
+    </div>
+  </aside>
+<!--end sidebar-->
+
+
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Components</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+
+						</nav>
+					</div>
+					<div class="ms-auto">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary">Settings</button>
+							<button type="button" class="btn btn-primary split-bg-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">	<span class="visually-hidden">Toggle Dropdown</span>
+							</button>
+							<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end">	<a class="dropdown-item" href="javascript:;">Action</a>
+								<a class="dropdown-item" href="javascript:;">Another action</a>
+								<a class="dropdown-item" href="javascript:;">Something else here</a>
+								<div class="dropdown-divider"></div>	<a class="dropdown-item" href="javascript:;">Separated link</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--end breadcrumb-->
+
+
+
+        <!--start stepper one-->
+
+        <h6 class="text-uppercase">Non Linear</h6>
+        <hr>
+				<div id="stepper1" class="bs-stepper">
+				  <div class="card">
+
+					<div class="card-header">
+						<div class="d-lg-flex flex-lg-row align-items-lg-center justify-content-lg-between" role="tablist">
+							<div class="step" data-target="#test-l-1">
+							  <div class="step-trigger" role="tab" id="stepper1trigger1" aria-controls="test-l-1">
+								<div class="bs-stepper-circle"></div>
+								<div class="">
+									<h5 class="mb-0 steper-title">Search for trends</h5>
+
+								</div>
+							  </div>
+							</div>
+
+						  </div>
+					 </div>
+				    <div class="card-body">
+					  <div class="bs-stepper-content">
+						<form method="post" action="{% url 'search_trends' %}" id="trends-form">
+						  {% csrf_token %}
+						  <div id="test-l-1" role="tabpanel" class="bs-stepper-pane active dstepper-block" aria-labelledby="stepper1trigger1">
+							<h5 class="mb-1">Search Trends with SerpAPI (Demo Mode)</h5>
+							<p class="mb-4">Enter search terms and select a region to explore search trends data. Currently using demo data.</p>
+							{% if error %}
+							<div class="alert alert-danger" role="alert">
+								<pre style="white-space: pre-wrap;">{{ error }}</pre>
+							</div>
+							{% endif %}
+
+							<div class="row g-3">
+								<div class="col-12 col-lg-6">
+									<label class="form-label">Search Term</label>
+									<input type="text" class="form-control" name="search_term" id="search_term" placeholder="Enter keyword or topic">
+
+								</div>
+								<div class="col-12 col-lg-6">
+									<label for="region" class="form-label">Select Region</label>
+									<select class="form-select" id="region" name="region" data-placeholder="Choose a region">
+										<option value="GLOBAL">Global</option>
+										<option value="US">United States</option>
+										<option value="GB">United Kingdom</option>
+										<option value="FR">France</option>
+										<option value="DE">Germany</option>
+										<option value="IT">Italy</option>
+										<option value="TN">Tunisia</option>
+										<option value="CA">Canada</option>
+										<option value="AU">Australia</option>
+									</select>
+								</div>
+
+								<div class="col-12 col-lg-6">
+									<label for="time_range" class="form-label">Time Range</label>
+									<select class="form-select" id="time_range" name="time_range">
+										<option value="today 1-m">Past month</option>
+										<option value="today 3-m">Past 3 months</option>
+										<option value="today 12-m">Past year</option>
+										<option value="today 5-y">Past 5 years</option>
+										<option value="all">All time</option>
+									</select>
+								</div>
+
+								<div class="col-12 col-lg-6">
+									<label for="category" class="form-label">Platform</label>
+									<select class="form-select" id="category" name="category">
+										<option value="0">All platforms (web)</option>
+										<option value="5">Web</option>
+										<option value="7">News</option>
+										<option value="12">Images</option>
+										<option value="20">YouTube</option>
+										<option value="30">Shopping</option>
+									</select>
+								</div>
+
+								<div class="col-12">
+									<button type="submit" class="btn btn-grd-primary px-4">Search Trends <i class="material-icons-outlined">trending_up</i></button>
+								</div>
+							</div><!---end row-->
+
+						  </div>
+						</form>
+					  </div>
+
+					</div>
+				   </div>
+				 </div>
+				<!--end stepper one-->
+
+				{% if has_results %}
+				<!-- Search Trends Results Section -->
+				<div class="card mt-4">
+					<div class="card-header">
+						<h5 class="mb-0">Demo Results for "{{ search_term }}"</h5>
+						<p class="mb-0">Region: {{ region }} | Time Range: {{ time_range }} | <span class="badge bg-warning">Demo Data</span></p>
+					</div>
+					<div class="alert alert-info mx-3 mt-3">
+						<strong>Note:</strong> This is currently showing dynamically generated demo data based on your search term and region.
+						Different combinations of search terms and regions will produce different results. The SerpAPI integration is in progress.
+					</div>
+					<div class="card-body">
+						<div class="row">
+							<div class="col-12 mb-4">
+								<div class="card">
+									<div class="card-header">
+										<h6 class="mb-0">Interest Over Time</h6>
+									</div>
+									<div class="card-body">
+										<!-- Chart Type Selector -->
+										<div class="mb-3">
+											<label for="chartTypeSelector" class="form-label">Select Visualization Type:</label>
+											<select class="form-select" id="chartTypeSelector" onchange="switchChartType()">
+												<option value="line">Line Chart</option>
+												<option value="bar">Bar Chart</option>
+												<option value="pie">Pie Chart</option>
+												<option value="area">Area Chart</option>
+											</select>
+										</div>
+
+										<!-- Chart Containers -->
+										<div id="lineChartContainer" class="chart-container">
+											<canvas id="lineChart" height="300"></canvas>
+										</div>
+
+										<div id="barChartContainer" class="chart-container" style="display:none;">
+											<canvas id="barChart" height="300"></canvas>
+										</div>
+
+										<div id="pieChartContainer" class="chart-container" style="display:none;">
+											<canvas id="pieChart" height="300"></canvas>
+										</div>
+
+										<div id="areaChartContainer" class="chart-container" style="display:none;">
+											<canvas id="areaChart" height="300"></canvas>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-6 mb-4">
+								<div class="card">
+									<div class="card-header">
+										<h6 class="mb-0">Top Related Queries</h6>
+									</div>
+									<div class="card-body">
+										{{ top_queries_html|safe }}
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-6 mb-4">
+								<div class="card">
+									<div class="card-header">
+										<h6 class="mb-0">Rising Related Queries</h6>
+									</div>
+									<div class="card-body">
+										{{ rising_queries_html|safe }}
+									</div>
+								</div>
+							</div>
+
+							<div class="col-12 mb-4">
+								<div class="card">
+									<div class="card-header">
+										<h6 class="mb-0">
+											{% if region == 'GLOBAL' %}
+												Interest by Country
+											{% else %}
+												Interest by Region in {{ region|upper }}
+											{% endif %}
+										</h6>
+									</div>
+									<div class="card-body">
+										{{ region_html|safe }}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- End Google Trends Results Section -->
+				{% endif %}
+
+					<hr>
+
+				  <!--end stepper three-->
+
+    </div>
+  </main>
+  <!--end main wrapper-->
+
+
+    <!--start overlay-->
+    <div class="overlay btn-toggle"></div>
+    <!--end overlay-->
+
+     <!--start footer-->
+     <footer class="page-footer">
+      <p class="mb-0">Copyright © 2024. All right reserved.</p>
+    </footer>
+    <!--top footer-->
+
+  <!--bootstrap js-->
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+  <!--plugins-->
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <!--plugins-->
+  <script src="{% static 'plugins/perfect-scrollbar/js/perfect-scrollbar.js' %}"></script>
+  <script src="{% static 'plugins/metismenu/metisMenu.min.js' %}"></script>
+  <script src="{% static 'plugins/bs-stepper/js/bs-stepper.min.js' %}"></script>
+  <script src="{% static 'plugins/bs-stepper/js/main.js' %}"></script>
+  <script src="{% static 'plugins/simplebar/js/simplebar.min.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+
+  <!-- Initialize the stepper -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize the BS Stepper
+      var stepper = new Stepper(document.querySelector('#stepper1'), {
+        linear: false
+      });
+
+      // Make the first step visible by default
+      var firstPane = document.querySelector('#test-l-1');
+      if (firstPane) {
+        firstPane.classList.add('active', 'dstepper-block');
+      }
+    });
+  </script>
+
+  <!-- Add Chart.js and ApexCharts libraries -->
+  <script src="{% static 'plugins/chartjs/js/chart.js' %}"></script>
+  <script src="{% static 'plugins/apexchart/apexcharts.min.js' %}"></script>
+
+  <!-- Chart Rendering Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Only initialize charts if we have results
+      {% if has_results %}
+        initializeCharts();
+      {% endif %}
+    });
+
+    // Function to switch between chart types
+    function switchChartType() {
+      const chartType = document.getElementById('chartTypeSelector').value;
+
+      // Hide all chart containers
+      document.querySelectorAll('.chart-container').forEach(container => {
+        container.style.display = 'none';
+      });
+
+      // Show the selected chart container
+      document.getElementById(chartType + 'ChartContainer').style.display = 'block';
+    }
+
+    // Function to initialize all charts
+    function initializeCharts() {
+      // Sample data based on the search term
+      // In a real implementation, this would come from the backend
+      const labels = [];
+      const values = [];
+
+      // Generate some sample dates and values
+      {% if has_results %}
+        // Create 10 data points for demonstration
+        for (let i = 0; i < 10; i++) {
+          labels.push(`Day ${i+1}`);
+          // Generate a random value between 20 and 100
+          values.push(Math.floor(Math.random() * 80) + 20);
+        }
+
+        // Initialize Line Chart
+        initLineChart(labels, values);
+
+        // Initialize Bar Chart
+        initBarChart(labels, values);
+
+        // Initialize Pie Chart
+        initPieChart(labels, values);
+
+        // Initialize Area Chart
+        initAreaChart(labels, values);
+      {% endif %}
+    }
+
+    // Initialize Line Chart
+    function initLineChart(labels, values) {
+      const ctx = document.getElementById('lineChart').getContext('2d');
+
+      // Create gradient for line chart
+      const gradientStroke = ctx.createLinearGradient(0, 0, 0, 300);
+      gradientStroke.addColorStop(0, '#ff6a00');
+      gradientStroke.addColorStop(1, '#ee0979');
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '{{ search_term }}',
+            data: values,
+            backgroundColor: 'transparent',
+            borderColor: gradientStroke,
+            borderWidth: 3,
+            pointBackgroundColor: gradientStroke,
+            pointBorderColor: gradientStroke,
+            pointHoverBackgroundColor: gradientStroke,
+            pointHoverBorderColor: gradientStroke,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: true,
+              text: 'Interest Over Time - Line Chart'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              grid: {
+                drawBorder: false
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Initialize Bar Chart
+    function initBarChart(labels, values) {
+      const ctx = document.getElementById('barChart').getContext('2d');
+
+      // Create gradient for bar chart
+      const gradientStroke = ctx.createLinearGradient(0, 0, 0, 300);
+      gradientStroke.addColorStop(0, '#005bea');
+      gradientStroke.addColorStop(1, '#00c6fb');
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '{{ search_term }}',
+            data: values,
+            backgroundColor: gradientStroke,
+            borderColor: gradientStroke,
+            borderWidth: 1,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: true,
+              text: 'Interest Over Time - Bar Chart'
+            }
+          }
+        }
+      });
+    }
+
+    // Initialize Pie Chart
+    function initPieChart(labels, values) {
+      const ctx = document.getElementById('pieChart').getContext('2d');
+
+      // Create a subset of data for the pie chart (last 5 points)
+      const pieLabels = labels.slice(-5);
+      const pieValues = values.slice(-5);
+
+      // Define colors for pie chart
+      const pieColors = [
+        '#0d6efd',
+        '#6f42c1',
+        '#d63384',
+        '#fd7e14',
+        '#15ca20'
+      ];
+
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: pieLabels,
+          datasets: [{
+            label: '{{ search_term }}',
+            data: pieValues,
+            backgroundColor: pieColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: true,
+              text: 'Interest Distribution - Pie Chart'
+            }
+          }
+        }
+      });
+    }
+
+    // Initialize Area Chart
+    function initAreaChart(labels, values) {
+      const ctx = document.getElementById('areaChart').getContext('2d');
+
+      // Create gradient for area chart
+      const gradientStroke = ctx.createLinearGradient(0, 0, 0, 300);
+      gradientStroke.addColorStop(0, 'rgba(2, 194, 122, 0.8)');
+      gradientStroke.addColorStop(1, 'rgba(2, 194, 122, 0.1)');
+
+      new Chart(ctx, {
+        type: 'line', // Line chart with fill = area chart
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '{{ search_term }}',
+            data: values,
+            fill: true,
+            backgroundColor: gradientStroke,
+            borderColor: '#02c27a',
+            borderWidth: 2,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: true,
+              text: 'Interest Over Time - Area Chart'
+            }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+
+</html>

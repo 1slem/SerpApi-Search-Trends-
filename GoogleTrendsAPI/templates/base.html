@@ -1,0 +1,13 @@
+{% load static %}
+
+<!-- Dynamic theme loading -->
+<link href="{% static THEME_CSS %}" rel="stylesheet">
+
+<!-- Theme switcher UI -->
+<div class="theme-selector">
+    <h4>Select Theme:</h4>
+    <a href="?theme=dark">Dark</a>
+    <a href="?theme=blue">Blue</a>
+    <a href="?theme=semi-dark">Semi Dark</a>
+    <a href="?theme=bordered">Bordered</a>
+</div>
