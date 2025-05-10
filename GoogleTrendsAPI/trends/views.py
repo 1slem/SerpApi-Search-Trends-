@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from .models import UserSearch, UserPlan
 
 # SerpAPI Key
-SERPAPI_KEY = ""
+SERPAPI_KEY = "3cdbacb30c99320871b97c3bd0e25fc93f64f7f17b936fe9d8171dab74d06147"
 
 # Helper Functions
 def map_time_range(input_range):
