@@ -655,50 +655,81 @@
 
         // Generate labels based on time range
         if (timeRange.includes("1-m") || timeRange.includes("month")) {
-          // Past month - show days
+          // Past month - show days with better distribution
           const today = new Date();
-          for (let i = numPoints - 1; i >= 0; i--) {
+          const daysInMonth = 30;
+          const interval = Math.max(1, Math.floor(daysInMonth / numPoints));
+
+          for (let i = 0; i < numPoints; i++) {
             const date = new Date();
-            date.setDate(today.getDate() - (i * 3)); // Every 3 days in the past month
+            date.setDate(today.getDate() - (daysInMonth - i * interval));
             labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
           }
         } else if (timeRange.includes("3-m")) {
-          // Past 3 months - show weeks
+          // Past 3 months - show weeks with better distribution
           const today = new Date();
-          for (let i = numPoints - 1; i >= 0; i--) {
+          const daysIn3Months = 90;
+          const interval = Math.max(1, Math.floor(daysIn3Months / numPoints));
+
+          for (let i = 0; i < numPoints; i++) {
             const date = new Date();
-            date.setDate(today.getDate() - (i * 9)); // Every 9 days in past 3 months
+            date.setDate(today.getDate() - (daysIn3Months - i * interval));
             labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
           }
         } else if (timeRange.includes("12-m") || timeRange.includes("year")) {
-          // Past year - show months
+          // Past year - show months evenly distributed
           const today = new Date();
-          for (let i = numPoints - 1; i >= 0; i--) {
-            const date = new Date();
-            date.setMonth(today.getMonth() - i);
+          const currentMonth = today.getMonth();
+          const currentYear = today.getFullYear();
+
+          for (let i = 0; i < numPoints; i++) {
+            // Calculate month and year
+            let monthOffset = (currentMonth - (numPoints - 1 - i)) % 12;
+            if (monthOffset < 0) monthOffset += 12;
+
+            let yearOffset = currentYear;
+            if (currentMonth < (numPoints - 1 - i)) {
+              yearOffset -= 1;
+            }
+
+            const date = new Date(yearOffset, monthOffset, 1);
             labels.push(date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
           }
         } else if (timeRange.includes("5-y")) {
-          // Past 5 years - show years and quarters
+          // Past 5 years - show 6-month periods as requested
           const today = new Date();
           const currentYear = today.getFullYear();
-          for (let i = 0; i < numPoints; i++) {
-            const yearOffset = Math.floor(i / 4); // 4 quarters per year
-            const quarter = i % 4 + 1;
+          const currentMonth = today.getMonth();
+          const halfYear = currentMonth >= 6 ? 2 : 1; // 1 for Jan-Jun, 2 for Jul-Dec
+
+          // Calculate how many 6-month periods we need to display
+          const totalPeriods = 10; // 5 years * 2 periods per year
+
+          for (let i = 0; i < Math.min(numPoints, totalPeriods); i++) {
+            // Calculate which period to show, starting from the oldest
+            const periodsAgo = totalPeriods - 1 - i;
+            const yearOffset = Math.floor(periodsAgo / 2);
+            const periodInYear = periodsAgo % 2 === 0 ? 1 : 2; // 1 for Jan-Jun, 2 for Jul-Dec
+
             const year = currentYear - 5 + yearOffset;
-            labels.push(`${year} Q${quarter}`);
+            const periodLabel = periodInYear === 1 ? "Jan-Jun" : "Jul-Dec";
+
+            labels.push(`${year} ${periodLabel}`);
           }
         } else if (timeRange === "all") {
-          // All time - show years
+          // All time - show years with better distribution
           const today = new Date();
           const currentYear = today.getFullYear();
+          const startYear = currentYear - 10; // Show last 10 years for "all time"
+
           for (let i = 0; i < numPoints; i++) {
-            labels.push(`${currentYear - numPoints + i + 1}`);
+            const year = startYear + i;
+            labels.push(`${year}`);
           }
         } else {
           // Default fallback - just in case
           for (let i = 0; i < numPoints; i++) {
-            labels.push(`Point ${i+1}`);
+            labels.push(`Period ${i+1}`);
           }
         }
 
