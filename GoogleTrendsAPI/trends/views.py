@@ -104,8 +104,50 @@ def search_trends(request):
                 seed_string = search_term + region
                 random.seed(sum(ord(c) for c in seed_string))
 
-                # Create dates for the past 30 days
-                dates = [datetime.now() - timedelta(days=i) for i in range(30)]
+                # Generate dates based on the selected time range
+                num_points = 0
+                end_date = datetime.now()
+
+                if time_range == 'today 1-m':
+                    # Last month - daily data points
+                    num_points = 30
+                    dates = [end_date - timedelta(days=i) for i in range(num_points)]
+                elif time_range == 'today 3-m':
+                    # Last 3 months - weekly data points
+                    num_points = 12  # ~12 weeks in 3 months
+                    dates = [end_date - timedelta(weeks=i) for i in range(num_points)]
+                elif time_range == 'today 12-m':
+                    # Last 12 months - monthly data points
+                    num_points = 12
+                    dates = []
+                    for i in range(num_points):
+                        # Go back i months from current date
+                        month_delta = end_date.month - (i % 12)
+                        year_delta = end_date.year - (i // 12)
+                        if month_delta <= 0:
+                            month_delta += 12
+                            year_delta -= 1
+                        dates.append(datetime(year_delta, month_delta, 1))
+                    dates.reverse()  # Reverse to get chronological order
+                elif time_range == 'today 5-y':
+                    # Last 5 years - quarterly data points
+                    num_points = 20  # 4 quarters * 5 years
+                    dates = []
+                    for i in range(num_points):
+                        # Calculate year and quarter
+                        year = end_date.year - (i // 4)
+                        quarter = 4 - (i % 4)
+                        # Set month based on quarter (Q1=Jan, Q2=Apr, Q3=Jul, Q4=Oct)
+                        month = (quarter - 1) * 3 + 1
+                        dates.append(datetime(year, month, 1))
+                    dates.reverse()  # Reverse to get chronological order
+                else:  # 'all' or default
+                    # All time - yearly data points for the past 10 years
+                    num_points = 10
+                    dates = []
+                    for i in range(num_points):
+                        dates.append(datetime(end_date.year - i, 1, 1))
+                    dates.reverse()  # Reverse to get chronological order
 
                 # Generate values based on search term and region
                 # Different search terms and regions will have different patterns
@@ -115,16 +157,25 @@ def search_trends(request):
                 # Create a trend pattern based on both search term and region
                 pattern_seed = (sum(ord(c) for c in seed_string) % 5)  # 5 different patterns
 
+                # Use num_points instead of hardcoded 30
                 if pattern_seed == 0:  # Upward trend
-                    values = [base_value + (i * 2) + random.randint(-5, 5) for i in range(30)]
+                    values = [base_value + (i * 2) + random.randint(-5, 5) for i in range(num_points)]
                 elif pattern_seed == 1:  # Downward trend
-                    values = [base_value + 60 - (i * 2) + random.randint(-5, 5) for i in range(30)]
+                    values = [base_value + 60 - (i * 2) + random.randint(-5, 5) for i in range(num_points)]
                 elif pattern_seed == 2:  # Fluctuating trend (sine wave)
-                    values = [base_value + 30 + (15 * math.sin(i/3)) + random.randint(-5, 5) for i in range(30)]
+                    # Adjust the sine wave frequency based on the number of points
+                    freq_factor = 3 * (30 / max(1, num_points))
+                    values = [base_value + 30 + (15 * math.sin(i/freq_factor)) + random.randint(-5, 5) for i in range(num_points)]
                 elif pattern_seed == 3:  # Spike in the middle
-                    values = [base_value + 20 + (30 * math.exp(-0.01 * (i - 15)**2)) + random.randint(-5, 5) for i in range(30)]
+                    # Adjust the spike position to be in the middle of the data points
+                    mid_point = num_points / 2
+                    spike_factor = 0.01 * (30 / max(1, num_points))
+                    values = [base_value + 20 + (30 * math.exp(-spike_factor * (i - mid_point)**2)) + random.randint(-5, 5) for i in range(num_points)]
                 else:  # Plateau pattern
-                    values = [base_value + (30 if 10 <= i <= 20 else 10) + random.randint(-5, 5) for i in range(30)]
+                    # Adjust the plateau position based on the number of points
+                    plateau_start = int(num_points * 0.3)
+                    plateau_end = int(num_points * 0.7)
+                    values = [base_value + (30 if plateau_start <= i <= plateau_end else 10) + random.randint(-5, 5) for i in range(num_points)]
 
                 # Ensure values are positive
                 values = [max(5, int(v)) for v in values]
@@ -144,9 +195,18 @@ def search_trends(request):
             if not data.empty:
                 # Create multiple visualizations
                 try:
+                    # Get a human-readable time range description
+                    time_range_display = {
+                        'today 1-m': 'Last Month',
+                        'today 3-m': 'Last 3 Months',
+                        'today 12-m': 'Last 12 Months',
+                        'today 5-y': 'Last 5 Years',
+                        'all': 'All Time'
+                    }.get(time_range, 'Last 12 Months')
+
                     # 1. Line Chart (Original)
                     plt.figure(figsize=(10, 6))
-                    data[search_term].plot(title=f"Line Chart: Trend for '{search_term}' in {region}")
+                    data[search_term].plot(title=f"Line Chart: Trend for '{search_term}' in {region} - {time_range_display}")
                     plt.xlabel("Date")
                     plt.ylabel("Interest")
                     plt.grid()
@@ -162,9 +222,9 @@ def search_trends(request):
 
                     # 2. Bar Chart
                     plt.figure(figsize=(10, 6))
-                    # Get the last 10 data points for the bar chart
-                    last_10_data = data[search_term].tail(10)
-                    last_10_data.plot(kind='bar', title=f"Bar Chart: Recent Trend for '{search_term}' in {region}")
+                    # Get the last 10 data points for the bar chart (or all if less than 10)
+                    last_n_data = data[search_term].tail(min(10, len(data)))
+                    last_n_data.plot(kind='bar', title=f"Bar Chart: Recent Trend for '{search_term}' in {region} - {time_range_display}")
                     plt.xlabel("Date")
                     plt.ylabel("Interest")
                     plt.xticks(rotation=45)
@@ -181,7 +241,7 @@ def search_trends(request):
 
                     # 3. Area Chart
                     plt.figure(figsize=(10, 6))
-                    data[search_term].plot(kind='area', alpha=0.5, title=f"Area Chart: Trend for '{search_term}' in {region}")
+                    data[search_term].plot(kind='area', alpha=0.5, title=f"Area Chart: Trend for '{search_term}' in {region} - {time_range_display}")
                     plt.xlabel("Date")
                     plt.ylabel("Interest")
                     plt.grid()
@@ -432,7 +492,7 @@ def search_trends(request):
 
                         # Create the plot
                         plt.figure(figsize=(10, 6))
-                        ax = plt.subplot(111, polar=True)
+                        plt.subplot(111, polar=True)
 
                         # Draw the polygon
                         plt.plot(angles, values, linewidth=2, linestyle='solid')
