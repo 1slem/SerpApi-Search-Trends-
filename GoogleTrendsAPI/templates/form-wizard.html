@@ -32,7 +32,10 @@
   <link href="{% static 'css/bordered-theme.css' %}" rel="stylesheet">
   <link href="{% static 'css/responsive.css' %}" rel="stylesheet">
 
-  <!-- Custom styles for charts -->
+  <!-- jQuery UI CSS for autocomplete -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+  <!-- Custom styles for charts and autocomplete -->
   <style>
     .chart-container {
       position: relative;
@@ -48,6 +51,38 @@
     /* Add some animation for chart transitions */
     .chart-container {
       transition: opacity 0.3s ease-in-out;
+    }
+
+    /* Autocomplete styles */
+    .ui-autocomplete {
+      max-height: 200px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      z-index: 9999 !important;
+      border-radius: 0 0 4px 4px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    .ui-menu-item {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f3f3f3;
+    }
+
+    .ui-menu-item:hover {
+      background-color: #f8f9fa;
+      cursor: pointer;
+    }
+
+    .ui-state-active,
+    .ui-widget-content .ui-state-active {
+      background-color: #0d6efd !important;
+      border-color: #0d6efd !important;
+      color: white !important;
+    }
+
+    .ui-helper-hidden-accessible {
+      display: none;
     }
   </style>
 
@@ -390,8 +425,10 @@
 							<div class="row g-3">
 								<div class="col-12 col-lg-6">
 									<label class="form-label">Search Term</label>
-									<input type="text" class="form-control" name="search_term" id="search_term" placeholder="Enter keyword or topic">
-
+									<div class="position-relative">
+										<input type="text" class="form-control" name="search_term" id="search_term" placeholder="Enter keyword or topic" autocomplete="off">
+										<div id="search_suggestions" class="search-suggestions"></div>
+									</div>
 								</div>
 								<div class="col-12 col-lg-6">
 									<label for="region" class="form-label">Select Region</label>
@@ -820,6 +857,152 @@
         }
       });
     }
+  </script>
+
+  <!-- jQuery UI for autocomplete -->
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+  <!-- Search Term Autocomplete Script -->
+  <script>
+    $(document).ready(function() {
+      // Popular search terms for suggestions
+      const popularSearchTerms = [
+        "Artificial Intelligence",
+        "Machine Learning",
+        "Data Science",
+        "Python Programming",
+        "JavaScript",
+        "Web Development",
+        "Mobile Apps",
+        "Blockchain",
+        "Cryptocurrency",
+        "Bitcoin",
+        "Ethereum",
+        "NFT",
+        "Cloud Computing",
+        "AWS",
+        "Azure",
+        "Google Cloud",
+        "Cybersecurity",
+        "Remote Work",
+        "Virtual Reality",
+        "Augmented Reality",
+        "Internet of Things",
+        "5G Technology",
+        "Electric Vehicles",
+        "Tesla",
+        "SpaceX",
+        "NASA",
+        "Climate Change",
+        "Renewable Energy",
+        "Solar Power",
+        "Wind Energy",
+        "COVID-19",
+        "Vaccines",
+        "Health Tech",
+        "Fitness",
+        "Nutrition",
+        "Yoga",
+        "Meditation",
+        "Mental Health",
+        "E-commerce",
+        "Amazon",
+        "Online Shopping",
+        "Digital Marketing",
+        "Social Media",
+        "Facebook",
+        "Instagram",
+        "TikTok",
+        "YouTube",
+        "Streaming Services",
+        "Netflix",
+        "Disney Plus",
+        "Gaming",
+        "PlayStation",
+        "Xbox",
+        "Nintendo Switch",
+        "Smartphones",
+        "iPhone",
+        "Samsung Galaxy",
+        "Android",
+        "iOS",
+        "Laptops",
+        "Smart Home",
+        "Travel Destinations",
+        "Tourism",
+        "Hotels",
+        "Airbnb",
+        "Cooking",
+        "Recipes",
+        "Vegan",
+        "Gluten Free",
+        "Fashion Trends",
+        "Sustainable Fashion",
+        "Sports",
+        "Football",
+        "Basketball",
+        "Tennis",
+        "Olympics",
+        "Music",
+        "Movies",
+        "TV Shows",
+        "Books",
+        "Education",
+        "Online Courses",
+        "Languages",
+        "Photography",
+        "Graphic Design",
+        "Home Decor",
+        "DIY Projects",
+        "Gardening",
+        "Pets",
+        "Dogs",
+        "Cats",
+        "Parenting",
+        "Baby Names",
+        "Wedding Trends",
+        "Finance",
+        "Investing",
+        "Stock Market",
+        "Real Estate",
+        "Housing Market",
+        "Career Development",
+        "Job Search",
+        "Resume Tips",
+        "Interview Questions"
+      ];
+
+      // Initialize autocomplete on search term input
+      $("#search_term").autocomplete({
+        source: function(request, response) {
+          // Filter terms that match the current input
+          const term = request.term.toLowerCase();
+          const matches = popularSearchTerms.filter(item =>
+            item.toLowerCase().includes(term)
+          );
+
+          // Return top 10 matches
+          response(matches.slice(0, 10));
+        },
+        minLength: 2,  // Start showing suggestions after 2 characters
+        delay: 300,    // Delay in milliseconds
+        select: function(event, ui) {
+          // Set the selected value in the input field
+          $("#search_term").val(ui.item.value);
+          return false;
+        }
+      }).autocomplete("instance")._renderItem = function(ul, item) {
+        // Highlight the matching part of the suggestion
+        const term = this.term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const re = new RegExp("(" + term + ")", "gi");
+        const highlightedText = item.label.replace(re, "<strong>$1</strong>");
+
+        // Return custom formatted list item
+        return $("<li>")
+          .append("<div>" + highlightedText + "</div>")
+          .appendTo(ul);
+      };
+    });
   </script>
 
 </body>
