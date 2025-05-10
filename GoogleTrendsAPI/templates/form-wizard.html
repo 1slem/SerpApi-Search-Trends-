@@ -372,16 +372,7 @@
 						</nav>
 					</div>
 					<div class="ms-auto">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary">Settings</button>
-							<button type="button" class="btn btn-primary split-bg-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">	<span class="visually-hidden">Toggle Dropdown</span>
-							</button>
-							<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end">	<a class="dropdown-item" href="javascript:;">Action</a>
-								<a class="dropdown-item" href="javascript:;">Another action</a>
-								<a class="dropdown-item" href="javascript:;">Something else here</a>
-								<div class="dropdown-divider"></div>	<a class="dropdown-item" href="javascript:;">Separated link</a>
-							</div>
-						</div>
+						<!-- Settings button removed -->
 					</div>
 				</div>
 				<!--end breadcrumb-->
@@ -657,11 +648,62 @@
       const labels = [];
       const values = [];
 
-      // Generate some sample dates and values
+      // Generate appropriate time labels based on selected time range
       {% if has_results %}
-        // Create 10 data points for demonstration
-        for (let i = 0; i < 10; i++) {
-          labels.push(`Day ${i+1}`);
+        const timeRange = "{{ time_range }}";
+        const numPoints = 10; // Number of data points to display
+
+        // Generate labels based on time range
+        if (timeRange.includes("1-m") || timeRange.includes("month")) {
+          // Past month - show days
+          const today = new Date();
+          for (let i = numPoints - 1; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(today.getDate() - (i * 3)); // Every 3 days in the past month
+            labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+          }
+        } else if (timeRange.includes("3-m")) {
+          // Past 3 months - show weeks
+          const today = new Date();
+          for (let i = numPoints - 1; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(today.getDate() - (i * 9)); // Every 9 days in past 3 months
+            labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+          }
+        } else if (timeRange.includes("12-m") || timeRange.includes("year")) {
+          // Past year - show months
+          const today = new Date();
+          for (let i = numPoints - 1; i >= 0; i--) {
+            const date = new Date();
+            date.setMonth(today.getMonth() - i);
+            labels.push(date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
+          }
+        } else if (timeRange.includes("5-y")) {
+          // Past 5 years - show years and quarters
+          const today = new Date();
+          const currentYear = today.getFullYear();
+          for (let i = 0; i < numPoints; i++) {
+            const yearOffset = Math.floor(i / 4); // 4 quarters per year
+            const quarter = i % 4 + 1;
+            const year = currentYear - 5 + yearOffset;
+            labels.push(`${year} Q${quarter}`);
+          }
+        } else if (timeRange === "all") {
+          // All time - show years
+          const today = new Date();
+          const currentYear = today.getFullYear();
+          for (let i = 0; i < numPoints; i++) {
+            labels.push(`${currentYear - numPoints + i + 1}`);
+          }
+        } else {
+          // Default fallback - just in case
+          for (let i = 0; i < numPoints; i++) {
+            labels.push(`Point ${i+1}`);
+          }
+        }
+
+        // Generate random values for demonstration
+        for (let i = 0; i < numPoints; i++) {
           // Generate a random value between 20 and 100
           values.push(Math.floor(Math.random() * 80) + 20);
         }
@@ -717,7 +759,7 @@
             },
             title: {
               display: true,
-              text: 'Interest Over Time - Line Chart'
+              text: 'Interest Over Time ({{ time_range|title }}) - Line Chart'
             }
           },
           scales: {
@@ -768,7 +810,7 @@
             },
             title: {
               display: true,
-              text: 'Interest Over Time - Bar Chart'
+              text: 'Interest Over Time ({{ time_range|title }}) - Bar Chart'
             }
           }
         }
@@ -812,7 +854,7 @@
             },
             title: {
               display: true,
-              text: 'Interest Distribution - Pie Chart'
+              text: 'Interest Distribution ({{ time_range|title }}) - Pie Chart'
             }
           }
         }
@@ -851,7 +893,7 @@
             },
             title: {
               display: true,
-              text: 'Interest Over Time - Area Chart'
+              text: 'Interest Over Time ({{ time_range|title }}) - Area Chart'
             }
           }
         }
