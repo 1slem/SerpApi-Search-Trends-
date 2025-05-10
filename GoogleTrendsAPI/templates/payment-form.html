@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SerpAPI Trends | Pricing Plans</title>
+  <title>SerpAPI Trends | Payment</title>
   <!--favicon-->
   <link rel="icon" href="{% static 'images/favicon-32x32.png' %}" type="image/png">
   <!-- loader-->
@@ -30,6 +30,48 @@
   <link href="{% static 'css/bordered-theme.css' %}" rel="stylesheet">
   <link href="{% static 'css/responsive.css' %}" rel="stylesheet">
 
+  <!-- Stripe JS -->
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <!-- Custom Stripe CSS -->
+  <style>
+    .StripeElement {
+      box-sizing: border-box;
+      height: 40px;
+      padding: 10px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      background-color: white;
+      transition: box-shadow 150ms ease;
+    }
+
+    .StripeElement--focus {
+      box-shadow: 0 1px 3px 0 #cfd7df;
+    }
+
+    .StripeElement--invalid {
+      border-color: #fa755a;
+    }
+
+    .StripeElement--webkit-autofill {
+      background-color: #fefde5 !important;
+    }
+
+    #card-errors {
+      color: #fa755a;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .payment-success {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 
 <body>
@@ -251,6 +293,7 @@
   </header>
   <!--end top header-->
 
+
   <!--start sidebar-->
   <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
@@ -303,6 +346,7 @@
   </aside>
 <!--end sidebar-->
 
+
   <!--start main wrapper-->
   <main class="main-wrapper">
     <div class="main-content">
@@ -314,149 +358,104 @@
 							<ol class="breadcrumb mb-0 p-0">
 								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
 								</li>
-								<li class="breadcrumb-item active" aria-current="page">Pricing Table</li>
+								<li class="breadcrumb-item active" aria-current="page">Validations</li>
 							</ol>
 						</nav>
 					</div>
+					<div class="ms-auto">
 
+					</div>
 				</div>
 				<!--end breadcrumb-->
 
-        <div class="row justify-content-center">
-          <div class="col-12 mb-4 text-center">
-            <h2>Choose Your Plan</h2>
-            <p class="lead">Upgrade your account to get more searches and advanced features</p>
-            {% if message %}
-            <div class="alert alert-info">{{ message }}</div>
-            {% endif %}
-          </div>
 
-          <div class="col-12 col-xl-4">
-            <div class="card border-top border-4 border-primary">
-              <div class="card-body p-4">
-                <div class="px-2 py-1 fw-medium bg-primary bg-opacity-10 text-primary text-uppercase w-25 text-center rounded">Free</div>
-                <div class="my-4">
-                   <h3 class="mb-2">Free Plan</h3>
-                   <p class="mb-0">Basic access for new users</p>
-                </div>
-                <div class="pricing-content d-flex flex-column gap-3">
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Searches per month</p>
-                     <p class="mb-0 fw-medium fs-6">3</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Data history</p>
-                     <p class="mb-0 fw-medium fs-6">1 month</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Export options</p>
-                     <p class="mb-0 fw-medium fs-6">Limited</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Visualization types</p>
-                     <p class="mb-0 fw-medium fs-6">Basic</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Support</p>
-                     <p class="mb-0 fw-medium fs-6">Email only</p>
-                   </div>
-                </div>
-                <div class="price-tag d-flex align-items-center justify-content-center gap-2 my-5">
-                  <h5 class="mb-0 align-self-end text-primary">$</h5>
-                  <h1 class="mb-0 lh-1 price-amount text-primary">0</h1>
-                  <h5 class="mb-0 align-self-end text-primary">/month</h5>
-                </div>
-                <div class="d-grid">
-                  <button class="btn btn-lg btn-primary" disabled>Current Plan</button>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="row">
+					<div class="col-xl-7 mx-auto">
+						<div class="card">
+							<div class="card-header px-4 py-3">
+								<h5 class="mb-0">Payment for {{ plan_name }} Plan</h5>
+							</div>
+							<div class="card-body p-4">
+								<div class="alert alert-info mb-4">
+									<strong>Plan Details:</strong> {{ plan_name }} Plan - ${{ plan_price }}/month
+									<p class="mb-0 mt-2">You're upgrading to our {{ plan_name }} plan which includes {{ plan_searches }} searches per month.</p>
+								</div>
 
-          <div class="col-12 col-xl-4">
-            <div class="card border-top border-4 border-success">
-              <div class="card-body p-4">
-                <div class="px-2 py-1 fw-medium bg-success bg-opacity-10 text-success text-uppercase w-25 text-center rounded">Basic</div>
-                <div class="my-4">
-                   <h3 class="mb-2">Basic Plan</h3>
-                   <p class="mb-0">Perfect for regular users</p>
-                </div>
-                <div class="pricing-content d-flex flex-column gap-3">
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Searches per month</p>
-                     <p class="mb-0 fw-medium fs-6">50</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Data history</p>
-                     <p class="mb-0 fw-medium fs-6">12 months</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Export options</p>
-                     <p class="mb-0 fw-medium fs-6">CSV, PDF</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Visualization types</p>
-                     <p class="mb-0 fw-medium fs-6">Advanced</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Support</p>
-                     <p class="mb-0 fw-medium fs-6">Email & Chat</p>
-                   </div>
-                </div>
-                <div class="price-tag d-flex align-items-center justify-content-center gap-2 my-5">
-                  <h5 class="mb-0 align-self-end text-success">$</h5>
-                  <h1 class="mb-0 lh-1 price-amount text-success">9.99</h1>
-                  <h5 class="mb-0 align-self-end text-success">/month</h5>
-                </div>
-                <div class="d-grid">
-                  <a href="{% url 'payment_page' %}?plan=basic" class="btn btn-lg btn-success">Upgrade Now</a>
-                </div>
-              </div>
-            </div>
-          </div>
+								<form id="payment-form" class="row g-3 needs-validation" novalidate>
+									{% csrf_token %}
+									<input type="hidden" name="plan_type" value="{{ plan_type }}">
+									<input type="hidden" name="plan_price" value="{{ plan_price }}">
+									<div class="col-md-6">
+										<label for="firstName" class="form-label">First Name</label>
+										<input type="text" class="form-control" id="firstName" name="first_name" placeholder="First Name" required>
+										<div class="invalid-feedback">
+											Please enter your first name.
+										</div>
+									</div>
+									<div class="col-md-6">
+										<label for="lastName" class="form-label">Last Name</label>
+										<input type="text" class="form-control" id="lastName" name="last_name" placeholder="Last Name" required>
+										<div class="invalid-feedback">
+											Please enter your last name.
+										</div>
+									</div>
 
-          <div class="col-12 col-xl-4">
-            <div class="card border-top border-4 border-danger">
-              <div class="card-body p-4">
-                <div class="px-2 py-1 fw-medium bg-danger bg-opacity-10 text-danger text-uppercase w-25 text-center rounded">Premium</div>
-                <div class="my-4">
-                   <h3 class="mb-2">Premium Plan</h3>
-                   <p class="mb-0">For power users & businesses</p>
-                </div>
-                <div class="pricing-content d-flex flex-column gap-3">
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Searches per month</p>
-                     <p class="mb-0 fw-medium fs-6">Unlimited</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Data history</p>
-                     <p class="mb-0 fw-medium fs-6">5 years</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Export options</p>
-                     <p class="mb-0 fw-medium fs-6">All formats</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Visualization types</p>
-                     <p class="mb-0 fw-medium fs-6">Premium</p>
-                   </div>
-                   <div class="d-flex align-items-center justify-content-between">
-                     <p class="mb-0 fs-6">Support</p>
-                     <p class="mb-0 fw-medium fs-6">24/7 Priority</p>
-                   </div>
-                </div>
-                <div class="price-tag d-flex align-items-center justify-content-center gap-2 my-5">
-                  <h5 class="mb-0 align-self-end text-danger">$</h5>
-                  <h1 class="mb-0 lh-1 price-amount text-danger">29.99</h1>
-                  <h5 class="mb-0 align-self-end text-danger">/month</h5>
-                </div>
-                <div class="d-grid">
-                  <a href="{% url 'payment_page' %}?plan=premium" class="btn btn-lg btn-danger">Upgrade Now</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div><!--end row-->
+									<div class="col-md-12">
+										<label for="email" class="form-label">Email</label>
+										<input type="email" class="form-control" id="email" name="email" placeholder="Email" value="{{ user.email }}" required>
+										<div class="invalid-feedback">
+											Please provide a valid email.
+										</div>
+									</div>
+
+									<div class="col-md-12">
+										<label for="card-element" class="form-label">Credit or Debit Card</label>
+										<div id="card-element" class="form-control">
+											<!-- Stripe Element will be inserted here -->
+										</div>
+										<div id="card-errors" role="alert"></div>
+									</div>
+
+									<div class="col-md-12">
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="terms" required>
+											<label class="form-check-label" for="terms">
+												I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>
+											</label>
+											<div class="invalid-feedback">
+												You must agree before submitting.
+											</div>
+										</div>
+									</div>
+
+									<div class="col-md-12">
+										<div class="d-md-flex d-grid align-items-center gap-3">
+											<button type="submit" id="submit-button" class="btn btn-grd-primary px-4">
+												Pay ${{ plan_price }}
+											</button>
+											<a href="{% url 'pricing_page' %}" class="btn btn-grd-info px-4">Cancel</a>
+										</div>
+									</div>
+
+									<div id="payment-success" class="payment-success mt-4">
+										<div class="alert alert-success">
+											<h4 class="alert-heading">Payment Successful!</h4>
+											<p>Your payment has been processed successfully. Your plan has been upgraded to {{ plan_name }}.</p>
+											<hr>
+											<p class="mb-0">You can now enjoy {{ plan_searches }} searches per month.</p>
+											<div class="mt-3">
+												<a href="{% url 'search_trends' %}" class="btn btn-success">Start Searching</a>
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--end row-->
+
+
     </div>
   </main>
   <!--end main wrapper-->
@@ -465,7 +464,6 @@
     <!--start overlay-->
     <div class="overlay btn-toggle"></div>
     <!--end overlay-->
-
 
      <!--start footer-->
      <footer class="page-footer">
@@ -606,9 +604,6 @@
 
 
 
-
-  <!--start switcher-->
-
   <!--bootstrap js-->
   <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 
@@ -617,6 +612,133 @@
   <!--plugins-->
   <script src="{% static 'plugins/perfect-scrollbar/js/perfect-scrollbar.js' %}"></script>
   <script src="{% static 'plugins/metismenu/metisMenu.min.js' %}"></script>
+  <script src="{% static 'plugins/validation/jquery.validate.min.js' %}"></script>
+  <script src="{% static 'plugins/validation/validation-script.js' %}"></script>
+
+  <!-- Stripe Integration -->
+  <script>
+    // Create a Stripe client
+    var stripe = Stripe('{{ stripe_publishable_key }}');
+    var elements = stripe.elements();
+
+    // Custom styling for the card Element
+    var style = {
+      base: {
+        color: '#32325d',
+        fontFamily: '"Noto Sans", Helvetica, sans-serif',
+        fontSmoothing: 'antialiased',
+        fontSize: '16px',
+        '::placeholder': {
+          color: '#aab7c4'
+        }
+      },
+      invalid: {
+        color: '#fa755a',
+        iconColor: '#fa755a'
+      }
+    };
+
+    // Create an instance of the card Element
+    var card = elements.create('card', {style: style});
+
+    // Add an instance of the card Element into the `card-element` div
+    card.mount('#card-element');
+
+    // Handle real-time validation errors from the card Element
+    card.addEventListener('change', function(event) {
+      var displayError = document.getElementById('card-errors');
+      if (event.error) {
+        displayError.textContent = event.error.message;
+      } else {
+        displayError.textContent = '';
+      }
+    });
+
+    // Handle form submission
+    var form = document.getElementById('payment-form');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      // Disable the submit button to prevent repeated clicks
+      document.getElementById('submit-button').disabled = true;
+
+      stripe.createToken(card).then(function(result) {
+        if (result.error) {
+          // Inform the user if there was an error
+          var errorElement = document.getElementById('card-errors');
+          errorElement.textContent = result.error.message;
+          document.getElementById('submit-button').disabled = false;
+        } else {
+          // Send the token to your server
+          stripeTokenHandler(result.token);
+        }
+      });
+    });
+
+    // Submit the form with the token ID
+    function stripeTokenHandler(token) {
+      // Insert the token ID into the form so it gets submitted to the server
+      var form = document.getElementById('payment-form');
+      var hiddenInput = document.createElement('input');
+      hiddenInput.setAttribute('type', 'hidden');
+      hiddenInput.setAttribute('name', 'stripeToken');
+      hiddenInput.setAttribute('value', token.id);
+      form.appendChild(hiddenInput);
+
+      // Submit the form
+      fetch('{% url "process_payment" %}', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          document.getElementById('payment-form').style.display = 'none';
+          document.getElementById('payment-success').style.display = 'block';
+        } else {
+          // Show error
+          var errorElement = document.getElementById('card-errors');
+          errorElement.textContent = data.error || 'An error occurred during payment processing.';
+          document.getElementById('submit-button').disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        var errorElement = document.getElementById('card-errors');
+        errorElement.textContent = 'An error occurred. Please try again.';
+        document.getElementById('submit-button').disabled = false;
+      });
+    }
+  </script>
+
+  <!-- Form validation -->
+  <script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function () {
+      'use strict'
+
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      var forms = document.querySelectorAll('.needs-validation')
+
+      // Loop over them and prevent submission
+      Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+          form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+              event.preventDefault()
+              event.stopPropagation()
+            }
+
+            form.classList.add('was-validated')
+          }, false)
+        })
+    })()
+  </script>
+
   <script src="{% static 'plugins/simplebar/js/simplebar.min.js' %}"></script>
   <script src="{% static 'js/main.js' %}"></script>
 
