@@ -24,6 +24,8 @@
           <ul>
             <li><a href="{% url 'search_trends' %}"><i class="material-icons-outlined">arrow_right</i>Search Trends</a>
             </li>
+            <li><a href="{% url 'search_history' %}"><i class="material-icons-outlined">arrow_right</i>Search History</a>
+            </li>
           </ul>
         </li>
         <li class="menu-label">Plans</li>
@@ -35,13 +37,22 @@
           </a>
         </li>
 
+        <li class="menu-label">User</li>
+        <li>
+          <a href="{% url 'profile' %}">
+            <div class="parent-icon"><i class="material-icons-outlined">person_outline</i>
+            </div>
+            <div class="menu-title">Profile</div>
+          </a>
+        </li>
+
         <li class="menu-label">Others</li>
 
         <li>
-          <a href="javascrpt:;">
-            <div class="parent-icon"><i class="material-icons-outlined">support</i>
+          <a href="{% url 'contact' %}">
+            <div class="parent-icon"><i class="material-icons-outlined">contact_support</i>
             </div>
-            <div class="menu-title">Support</div>
+            <div class="menu-title">Contact</div>
           </a>
         </li>
        </ul>

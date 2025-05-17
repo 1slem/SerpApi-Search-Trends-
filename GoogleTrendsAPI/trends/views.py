@@ -1,8 +1,15 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
 from serpapi import GoogleSearch
 import pandas as pd
+from .forms import ContactForm
+from .models import UserSearch, UserPlan, ContactMessage
+# Set matplotlib backend to 'Agg' to avoid Tkinter issues
+import matplotlib
+matplotlib.use('Agg')  # This must be done before importing pyplot
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -53,6 +60,34 @@ def pricing_page(request):
     return render(request, 'pricing-table.html', context)
 
 @login_required
+def search_history(request):
+    """
+    View to display user's search history
+    """
+    # Get the user's search history
+    searches = UserSearch.objects.filter(user=request.user).order_by('-search_date')
+
+    # Get user's plan information
+    user_plan, created = UserPlan.objects.get_or_create(
+        user=request.user,
+        defaults={'plan_type': 'free', 'max_searches': 3}
+    )
+
+    # Calculate searches left
+    search_count = searches.count()
+    searches_left = max(0, user_plan.max_searches - search_count)
+
+    context = {
+        'user': request.user,
+        'searches': searches,
+        'search_count': search_count,
+        'searches_left': searches_left,
+        'max_searches': user_plan.max_searches
+    }
+
+    return render(request, 'search-history.html', context)
+
+@login_required
 def search_trends(request):
     """
     View to handle Google Trends search form submission and display results
@@ -64,6 +99,17 @@ def search_trends(request):
         user=request.user,
         defaults={'plan_type': 'free', 'max_searches': 3}
     )
+
+    # Calculate searches left for display in the template
+    search_count = UserSearch.objects.filter(user=request.user).count()
+    searches_left = user_plan.max_searches - search_count
+
+    # Add search limit info to context
+    context.update({
+        'search_count': search_count,
+        'searches_left': searches_left,
+        'max_searches': user_plan.max_searches
+    })
 
     if request.method == 'POST':
         # Get form data
@@ -78,12 +124,15 @@ def search_trends(request):
             return render(request, 'form-wizard.html', context)
 
         # Check if user has reached their search limit
-        search_count = UserSearch.objects.filter(user=request.user).count()
-
-        if search_count >= user_plan.max_searches:
-            # Redirect to pricing page with message
-            message = "You've reached your search limit. Please upgrade your plan to continue searching."
-            return redirect(f'/pricing/?message={message}')
+        if searches_left <= 0:
+            # Instead of redirecting, show an alert on the same page
+            context.update({
+                'error': "You've reached your search limit. Please upgrade your plan to continue searching.",
+                'search_count': search_count,
+                'searches_left': searches_left,
+                'max_searches': user_plan.max_searches
+            })
+            return render(request, 'form-wizard.html', context)
 
         try:
             # Print debug info
@@ -633,10 +682,13 @@ def search_trends(request):
                     context['error'] = f'Error converting data to HTML: {str(e)}\n\nTraceback: {error_traceback}'
                     return render(request, 'form-wizard.html', context)
 
-                # Record this search
+                # Record this search with additional information
                 UserSearch.objects.create(
                     user=request.user,
-                    search_term=search_term
+                    search_term=search_term,
+                    country=region,
+                    time_range=time_range,
+                    platform=map_platform(category)
                 )
 
                 # Get updated search count for display
@@ -682,3 +734,68 @@ def search_trends(request):
 
     # For GET requests, just render the form page
     return render(request, 'form-wizard.html', context)
+
+@login_required
+def contact(request):
+    """
+    View to handle the contact form
+    """
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Get form data
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+
+            try:
+                # Save message to database
+                contact_message = ContactMessage(
+                    name=name,
+                    email=email,
+                    subject=subject,
+                    message=message,
+                    user=request.user  # Link to the current user
+                )
+                contact_message.save()
+
+                # Prepare the email message
+                email_message = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+
+                # Send email notification to admin
+                try:
+                    send_mail(
+                        subject=f"Contact Form: {subject}",
+                        message=email_message,
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[settings.ADMIN_EMAIL],
+                        fail_silently=True,  # Don't fail if email sending fails
+                    )
+                except Exception as email_error:
+                    # Log the email error but don't show it to the user
+                    print(f"Error sending email notification: {str(email_error)}")
+
+                # Show success message
+                messages.success(request, "Your message has been sent successfully. We'll get back to you soon!")
+
+                # Redirect to a fresh form
+                return redirect('contact')
+            except Exception as e:
+                # Show error message
+                messages.error(request, f"An error occurred while processing your message: {str(e)}")
+    else:
+        # For GET requests, create a new form
+        form = ContactForm()
+
+    # Get the user's previous messages
+    user_messages = ContactMessage.objects.filter(user=request.user).order_by('-created_at')
+
+    # Render the contact page with the form and previous messages
+    context = {
+        'user': request.user,
+        'form': form,
+        'user_messages': user_messages
+    }
+
+    return render(request, 'contact.html', context)

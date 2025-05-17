@@ -3,7 +3,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
-from .forms import CustomUserCreationForm
+from django.contrib.auth.decorators import login_required
+from .forms import CustomUserCreationForm, UserProfileForm
 
 def register(request):
     if request.method == 'POST':
@@ -71,3 +72,89 @@ def user_logout(request):
 # Custom login view that uses the auth-boxed-login.html template
 class CustomLoginView(LoginView):
     template_name = 'auth-boxed-login.html'
+
+@login_required
+def profile(request):
+    """
+    View to display and update user profile
+    """
+    user = request.user
+
+    if request.method == 'POST':
+        # Get form data
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+
+        # Validate data
+        if not username:
+            messages.error(request, 'Username cannot be empty.')
+            return redirect('profile')
+
+        # Update user data
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+
+        # Only update username if it changed and is not already taken
+        if username != user.username:
+            from django.contrib.auth.models import User
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'This username is already taken.')
+                return redirect('profile')
+            user.username = username
+
+        # Handle profile photo upload
+        profile_photo = request.FILES.get('profile_photo')
+        if profile_photo:
+            # Get or create user profile
+            from .models import UserProfile
+            user_profile, created = UserProfile.objects.get_or_create(user=user)
+
+            # Delete old photo if it exists
+            if user_profile.profile_photo:
+                import os
+                from django.conf import settings
+                old_photo_path = os.path.join(settings.MEDIA_ROOT, str(user_profile.profile_photo))
+                if os.path.isfile(old_photo_path):
+                    os.remove(old_photo_path)
+
+            # Save new photo
+            user_profile.profile_photo = profile_photo
+            user_profile.save()
+
+        # Save changes
+        user.save()
+        messages.success(request, 'Your profile has been updated successfully!')
+        return redirect('profile')
+
+    # Get user's plan information if available
+    try:
+        from trends.models import UserPlan
+        user_plan, created = UserPlan.objects.get_or_create(
+            user=request.user,
+            defaults={'plan_type': 'free', 'max_searches': 3}
+        )
+        plan_type = user_plan.get_plan_type_display()
+        max_searches = user_plan.max_searches
+    except:
+        plan_type = "Free Plan"
+        max_searches = 3
+
+    # Get user profile for photo
+    try:
+        from .models import UserProfile
+        user_profile = UserProfile.objects.get(user=user)
+        profile_photo = user_profile.profile_photo
+    except:
+        profile_photo = None
+
+    context = {
+        'user': user,
+        'plan_type': plan_type,
+        'max_searches': max_searches,
+        'profile_photo': profile_photo
+    }
+
+    return render(request, 'profile.html', context)
