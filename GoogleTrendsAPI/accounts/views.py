@@ -120,11 +120,11 @@ def profile(request):
                 if os.path.isfile(old_photo_path):
                     os.remove(old_photo_path)
 
-            # Save new photo
+            
             user_profile.profile_photo = profile_photo
             user_profile.save()
 
-        # Save changes
+    
         user.save()
         messages.success(request, 'Your profile has been updated successfully!')
         return redirect('profile')

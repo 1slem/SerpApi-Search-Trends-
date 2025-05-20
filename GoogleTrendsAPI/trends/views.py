@@ -7,7 +7,7 @@ from serpapi import GoogleSearch
 import pandas as pd
 from .forms import ContactForm
 from .models import UserSearch, UserPlan, ContactMessage
-# Set matplotlib backend to 'Agg' to avoid Tkinter issues
+
 import matplotlib
 matplotlib.use('Agg')  # This must be done before importing pyplot
 import matplotlib.pyplot as plt
@@ -112,13 +112,11 @@ def search_trends(request):
     })
 
     if request.method == 'POST':
-        # Get form data
         search_term = request.POST.get('search_term', '').strip()
         region = request.POST.get('region', 'GLOBAL').strip()
         time_range = request.POST.get('time_range', 'today 12-m').strip()
         category = request.POST.get('category', '0').strip()
 
-        # Validate inputs
         if not search_term:
             context['error'] = 'Please enter a search term'
             return render(request, 'form-wizard.html', context)
@@ -211,7 +209,6 @@ def search_trends(request):
                     num_points = 20  # 4 quarters * 5 years
                     dates = []
                     for i in range(num_points):
-                        # Calculate year and quarter
                         year = end_date.year - (i // 4)
                         quarter = 4 - (i % 4)
                         # Set month based on quarter (Q1=Jan, Q2=Apr, Q3=Jul, Q4=Oct)
