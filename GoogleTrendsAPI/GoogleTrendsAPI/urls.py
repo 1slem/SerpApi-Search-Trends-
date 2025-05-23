@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),  # Built-in auth URLs
     path('accounts/', include('accounts.urls')),  # Your custom auth URLs
+    path('accounts/', include('allauth.urls')),  # Django AllAuth URLs
     path('theme/', include('theme.urls')),
     path('trends/', include('trends.urls')),  # Google Trends URLs
     path('', include('theme.urls')),  # Root URL

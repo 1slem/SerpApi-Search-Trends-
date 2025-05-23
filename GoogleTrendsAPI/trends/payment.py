@@ -9,7 +9,7 @@ from django.contrib import messages
 from .models import UserPlan
 
 # Initialize Stripe with your secret key
-stripe.api_key = "sk_test_51RNI0jCzPtXPriFiYn1KZJngrJgxGA5E7PiqMh1slATMLiaXUWDTYEyW9ulnMLkC0QGS74Ujth1nXh0Sdgju3Ey100jaPh9NLh"
+stripe.api_key = "YOUR_STRIPE_SECRET_KEY"
 
 # Plan configurations
 PLAN_CONFIGS = {

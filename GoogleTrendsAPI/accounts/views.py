@@ -4,7 +4,14 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from .forms import CustomUserCreationForm, UserProfileForm
+
+# Google OAuth
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from allauth.socialaccount.providers.oauth2.views import OAuth2LoginView, OAuth2CallbackView
 
 def register(request):
     if request.method == 'POST':
@@ -120,11 +127,11 @@ def profile(request):
                 if os.path.isfile(old_photo_path):
                     os.remove(old_photo_path)
 
-            
+
             user_profile.profile_photo = profile_photo
             user_profile.save()
 
-    
+
         user.save()
         messages.success(request, 'Your profile has been updated successfully!')
         return redirect('profile')
@@ -158,3 +165,29 @@ def profile(request):
     }
 
     return render(request, 'profile.html', context)
+
+# Google OAuth views
+def google_login(request):
+    """
+    Custom view to handle Google OAuth login.
+    This redirects to the Google OAuth provider.
+    """
+    # Use the built-in OAuth2LoginView
+    callback_url = request.build_absolute_uri(reverse('google_callback'))
+
+    # Create the login view with the Google adapter
+    login_view = OAuth2LoginView.adapter_view(GoogleOAuth2Adapter)
+
+    # Call the login view with the request
+    return login_view(request)
+
+def google_callback(request):
+    """
+    Custom view to handle Google OAuth callback.
+    This processes the response from Google and logs the user in.
+    """
+    # Use the built-in OAuth2CallbackView
+    callback_view = OAuth2CallbackView.adapter_view(GoogleOAuth2Adapter)
+
+    # Call the callback view with the request
+    return callback_view(request)

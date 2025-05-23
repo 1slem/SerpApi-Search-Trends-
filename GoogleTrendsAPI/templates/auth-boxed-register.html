@@ -45,9 +45,14 @@
           <p class="mb-0">Enter your credentials to create your account</p>
           <div class="row gy-2 gx-0 my-4">
             <div class="col-12 col-lg-12">
-              <button class="btn btn-filter py-2 px-4 font-text1 fw-bold d-flex align-items-center justify-content-center w-100">
-                <span class=""><img src="{% static 'images/apps/05.png' %}" width="20" class="me-2" alt="">Sign up with Google</span>
-              </button>
+              <form method="post" action="/accounts/google/login/">
+                {% csrf_token %}
+                <input type="hidden" name="process" value="login">
+                <input type="hidden" name="next" value="/">
+                <button type="submit" class="btn btn-filter py-2 px-4 font-text1 fw-bold d-flex align-items-center justify-content-center w-100">
+                  <span class=""><img src="{% static 'images/apps/05.png' %}" width="20" class="me-2" alt="">Sign up with Google</span>
+                </button>
+              </form>
             </div>
             <div class="col-12 col-lg-12">
               <button class="btn btn-filter py-2 px-4 font-text1 fw-bold d-flex align-items-center justify-content-center w-100">
