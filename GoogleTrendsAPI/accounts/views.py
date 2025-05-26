@@ -141,13 +141,17 @@ def profile(request):
         from trends.models import UserPlan
         user_plan, created = UserPlan.objects.get_or_create(
             user=request.user,
-            defaults={'plan_type': 'free', 'max_searches': 3}
+            defaults={'plan_type': 'free', 'max_searches': 3, 'status': 'active'}
         )
         plan_type = user_plan.get_plan_type_display()
         max_searches = user_plan.max_searches
+        plan_status = user_plan.get_status_display()
+        can_cancel = user_plan.can_cancel()
     except:
         plan_type = "Free Plan"
         max_searches = 3
+        plan_status = "Active"
+        can_cancel = False
 
     # Get user profile for photo
     try:
@@ -161,6 +165,8 @@ def profile(request):
         'user': user,
         'plan_type': plan_type,
         'max_searches': max_searches,
+        'plan_status': plan_status,
+        'can_cancel': can_cancel,
         'profile_photo': profile_photo
     }
 

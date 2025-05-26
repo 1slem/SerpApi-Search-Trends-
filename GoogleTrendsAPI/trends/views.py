@@ -3,10 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from serpapi import GoogleSearch
 import pandas as pd
 from .forms import ContactForm
 from .models import UserSearch, UserPlan, ContactMessage
+from django_countries import countries
 
 import matplotlib
 matplotlib.use('Agg')  # This must be done before importing pyplot
@@ -70,7 +73,7 @@ def search_history(request):
     # Get user's plan information
     user_plan, created = UserPlan.objects.get_or_create(
         user=request.user,
-        defaults={'plan_type': 'free', 'max_searches': 3}
+        defaults={'plan_type': 'free', 'max_searches': 3, 'status': 'active'}
     )
 
     # Calculate searches left
@@ -88,6 +91,59 @@ def search_history(request):
     return render(request, 'search-history.html', context)
 
 @login_required
+@require_POST
+def delete_search_history(request):
+    """
+    View to delete selected search history entries
+    """
+    try:
+        # Get the list of search IDs to delete
+        search_ids = request.POST.getlist('search_ids[]')
+
+        if not search_ids:
+            return JsonResponse({'success': False, 'error': 'No searches selected'})
+
+        # Convert to integers and filter by user to ensure security
+        search_ids = [int(id) for id in search_ids if id.isdigit()]
+
+        # Delete only the user's own searches
+        deleted_count = UserSearch.objects.filter(
+            id__in=search_ids,
+            user=request.user
+        ).delete()[0]
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Successfully deleted {deleted_count} search(es)',
+            'deleted_count': deleted_count
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'An error occurred: {str(e)}'})
+
+@login_required
+@require_POST
+def delete_single_search(request, search_id):
+    """
+    View to delete a single search history entry
+    """
+    try:
+        # Get the search entry and ensure it belongs to the current user
+        search = UserSearch.objects.get(id=search_id, user=request.user)
+        search_term = search.search_term
+        search.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Successfully deleted search "{search_term}"'
+        })
+
+    except UserSearch.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Search not found or access denied'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'An error occurred: {str(e)}'})
+
+@login_required
 def search_trends(request):
     """
     View to handle Google Trends search form submission and display results
@@ -97,7 +153,7 @@ def search_trends(request):
     # Get or create user plan
     user_plan, created = UserPlan.objects.get_or_create(
         user=request.user,
-        defaults={'plan_type': 'free', 'max_searches': 3}
+        defaults={'plan_type': 'free', 'max_searches': 3, 'status': 'active'}
     )
 
     # Calculate searches left for display in the template
@@ -108,7 +164,8 @@ def search_trends(request):
     context.update({
         'search_count': search_count,
         'searches_left': searches_left,
-        'max_searches': user_plan.max_searches
+        'max_searches': user_plan.max_searches,
+        'countries': countries  # Add all countries from django-countries
     })
 
     if request.method == 'POST':
@@ -139,9 +196,12 @@ def search_trends(request):
             print(f"Time range: {time_range} -> {map_time_range(time_range)}")
             print(f"Platform: {category} -> {map_platform(category)}")
 
-            # Validate region code
-            if region != 'GLOBAL' and (len(region) != 2 or not region.isalpha()):
-                region = 'GLOBAL'  # Default to global if invalid
+            # Validate region code using django-countries
+            if region != 'GLOBAL':
+                # Check if the region code is valid according to django-countries
+                valid_country_codes = [code for code, _ in countries]
+                if region not in valid_country_codes:
+                    region = 'GLOBAL'  # Default to global if invalid
 
             # Prepare SerpAPI parameters
             params = {
@@ -331,8 +391,8 @@ def search_trends(request):
 
                     # 4. Pie Chart for Interest by Region
                     # Create dynamic dummy region data based on search term
-                    # Define a list of countries
-                    countries = [
+                    # Define a list of country names for demo data
+                    demo_countries = [
                         'United States', 'United Kingdom', 'Canada', 'Australia',
                         'Germany', 'France', 'India', 'Brazil', 'Japan', 'Italy',
                         'Spain', 'Mexico', 'Russia', 'China', 'South Korea',
@@ -344,7 +404,7 @@ def search_trends(request):
                     random.seed(sum(ord(c) for c in seed_string))
 
                     # Shuffle the countries based on the search term
-                    shuffled_countries = countries.copy()
+                    shuffled_countries = demo_countries.copy()
                     random.shuffle(shuffled_countries)
 
                     # Take the top 10 countries

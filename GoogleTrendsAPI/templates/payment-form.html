@@ -172,14 +172,15 @@
 										</div>
 									</div>
 
-									<div id="payment-success" class="payment-success mt-4">
+									<div id="payment-success" class="payment-success mt-4" style="display: none;">
 										<div class="alert alert-success">
 											<h4 class="alert-heading">Payment Successful!</h4>
-											<p>Your payment has been processed successfully. Your plan has been upgraded to {{ plan_name }}.</p>
+											<p id="success-message">Your payment has been processed successfully. Your plan has been upgraded to {{ plan_name }}.</p>
 											<hr>
 											<p class="mb-0">You can now enjoy {{ plan_searches }} searches per month.</p>
 											<div class="mt-3">
 												<a href="{% url 'search_trends' %}" class="btn btn-success">Start Searching</a>
+												<a href="{% url 'profile' %}" class="btn btn-outline-success ms-2">View Profile</a>
 											</div>
 										</div>
 									</div>
@@ -394,15 +395,21 @@
     form.addEventListener('submit', function(event) {
       event.preventDefault();
 
-      // Disable the submit button to prevent repeated clicks
-      document.getElementById('submit-button').disabled = true;
+      // Disable the submit button to prevent repeated clicks and show loading
+      var submitBtn = document.getElementById('submit-button');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
 
       stripe.createToken(card).then(function(result) {
         if (result.error) {
           // Inform the user if there was an error
           var errorElement = document.getElementById('card-errors');
           errorElement.textContent = result.error.message;
-          document.getElementById('submit-button').disabled = false;
+
+          // Restore button state
+          var submitBtn = document.getElementById('submit-button');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Pay ${{ plan_price }}';
         } else {
           // Send the token to your server
           stripeTokenHandler(result.token);
@@ -431,21 +438,46 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Show success message
+          // Update success message if provided
+          if (data.message) {
+            document.getElementById('success-message').textContent = data.message;
+          }
+
+          // Show success message with animation
           document.getElementById('payment-form').style.display = 'none';
           document.getElementById('payment-success').style.display = 'block';
+
+          // Scroll to success message
+          document.getElementById('payment-success').scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+
+          // Optional: Redirect to profile after 5 seconds
+          setTimeout(function() {
+            window.location.href = '{% url "profile" %}';
+          }, 5000);
+
         } else {
           // Show error
           var errorElement = document.getElementById('card-errors');
           errorElement.textContent = data.error || 'An error occurred during payment processing.';
-          document.getElementById('submit-button').disabled = false;
+
+          // Restore button state
+          var submitBtn = document.getElementById('submit-button');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Pay ${{ plan_price }}';
         }
       })
       .catch(error => {
         console.error('Error:', error);
         var errorElement = document.getElementById('card-errors');
         errorElement.textContent = 'An error occurred. Please try again.';
-        document.getElementById('submit-button').disabled = false;
+
+        // Restore button state
+        var submitBtn = document.getElementById('submit-button');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Pay ${{ plan_price }}';
       });
     }
   </script>

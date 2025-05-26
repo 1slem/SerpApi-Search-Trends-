@@ -24,12 +24,31 @@ class UserPlan(models.Model):
         ('premium', 'Premium Plan'),
     )
 
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('cancelled', 'Cancelled'),
+        ('expired', 'Expired'),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     plan_type = models.CharField(max_length=20, choices=PLAN_CHOICES, default='free')
     max_searches = models.IntegerField(default=3)  # Free plan gets 3 searches
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    subscription_date = models.DateTimeField(auto_now_add=True)
+    cancellation_date = models.DateTimeField(null=True, blank=True)
+    stripe_customer_id = models.CharField(max_length=255, null=True, blank=True)
+    stripe_subscription_id = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.get_plan_type_display()}"
+        return f"{self.user.username} - {self.get_plan_type_display()} ({self.get_status_display()})"
+
+    def is_paid_plan(self):
+        """Check if user has a paid plan"""
+        return self.plan_type in ['basic', 'premium']
+
+    def can_cancel(self):
+        """Check if subscription can be cancelled"""
+        return self.is_paid_plan() and self.status == 'active'
 
 class ContactMessage(models.Model):
     """

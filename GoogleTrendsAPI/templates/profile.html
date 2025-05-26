@@ -155,7 +155,13 @@
                   </div>
                   <div class="info-list-item d-flex align-items-center gap-3">
                     <span class="material-icons-outlined">flag</span>
-                    <p class="mb-0">Plan: {{ plan_type }}</p>
+                    <p class="mb-0">Plan: {{ plan_type }}
+                      {% if plan_status == 'Cancelled' %}
+                        <span class="badge bg-warning">{{ plan_status }}</span>
+                      {% elif plan_status == 'Active' and plan_type != 'Free Plan' %}
+                        <span class="badge bg-success">{{ plan_status }}</span>
+                      {% endif %}
+                    </p>
                   </div>
                   <div class="info-list-item d-flex align-items-center gap-3">
                     <span class="material-icons-outlined">search</span>
@@ -177,14 +183,37 @@
                 </div>
               </div>
               <div class="account-list d-flex flex-column gap-4">
+                {% if plan_type == 'Free Plan' or plan_status == 'Cancelled' %}
                 <div class="account-list-item d-flex align-items-center gap-3">
                   <span class="material-icons-outlined">upgrade</span>
                   <div class="flex-grow-1">
-                    <h6 class="mb-0">Upgrade Plan</h6>
+                    <h6 class="mb-0">{% if plan_status == 'Cancelled' %}Reactivate{% else %}Upgrade{% endif %} Plan</h6>
                     <p class="mb-0">Get more searches</p>
                   </div>
-                  <a href="{% url 'pricing_page' %}" class="btn btn-sm btn-primary">Upgrade</a>
+                  <a href="{% url 'pricing_page' %}" class="btn btn-sm btn-primary">
+                    {% if plan_status == 'Cancelled' %}Reactivate{% else %}Upgrade{% endif %}
+                  </a>
                 </div>
+                {% else %}
+                {% if can_cancel %}
+                <div class="account-list-item d-flex align-items-center gap-3">
+                  <span class="material-icons-outlined">cancel</span>
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Cancel Subscription</h6>
+                    <p class="mb-0">Downgrade to free plan</p>
+                  </div>
+                  <a href="{% url 'cancel_subscription' %}" class="btn btn-sm btn-danger">Cancel</a>
+                </div>
+                {% endif %}
+                <div class="account-list-item d-flex align-items-center gap-3">
+                  <span class="material-icons-outlined">upgrade</span>
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Change Plan</h6>
+                    <p class="mb-0">Upgrade or modify plan</p>
+                  </div>
+                  <a href="{% url 'pricing_page' %}" class="btn btn-sm btn-primary">Change</a>
+                </div>
+                {% endif %}
                 <div class="account-list-item d-flex align-items-center gap-3">
                   <span class="material-icons-outlined">password</span>
                   <div class="flex-grow-1">

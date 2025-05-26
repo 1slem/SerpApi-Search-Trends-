@@ -19,6 +19,7 @@
   <link rel="stylesheet" type="text/css" href="{% static 'plugins/simplebar/css/simplebar.css' %}">
   <link href="{% static 'plugins/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet">
   <link href="{% static 'plugins/bs-stepper/css/bs-stepper.css' %}" rel="stylesheet">
+
   <!--bootstrap css-->
   <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -83,6 +84,181 @@
 
     .ui-helper-hidden-accessible {
       display: none;
+    }
+
+    /* Animation styles for charts */
+    .chart-container {
+      transition: all 0.3s ease-in-out;
+      position: relative;
+    }
+
+    .chart-container.animating {
+      position: relative;
+    }
+
+    .chart-container.animating::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(13, 110, 253, 0.1), rgba(13, 110, 253, 0.05));
+      border-radius: 8px;
+      z-index: 1;
+      animation: pulse 2s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      50% { opacity: 0.1; }
+      100% { opacity: 0.3; }
+    }
+
+    /* Animation controls styling */
+    .btn-group .btn {
+      transition: all 0.2s ease-in-out;
+    }
+
+    .btn-group .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Progress bar animation */
+    .progress-bar {
+      transition: width 0.3s ease-in-out;
+    }
+
+    /* Trend evolution indicator */
+    .trend-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 10;
+      transition: all 0.3s ease-in-out;
+      backdrop-filter: blur(10px);
+    }
+
+    .trend-indicator.trend-up {
+      color: #28a745;
+      border-left: 4px solid #28a745;
+    }
+
+    .trend-indicator.trend-down {
+      color: #dc3545;
+      border-left: 4px solid #dc3545;
+    }
+
+    .trend-indicator.trend-stable {
+      color: #6c757d;
+      border-left: 4px solid #6c757d;
+    }
+
+    /* Animation speed controls */
+    .animation-speed-control {
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+
+    .speed-slider {
+      width: 100px;
+      height: 4px;
+    }
+
+    /* Real-time indicators */
+    .live-indicator {
+      width: 8px;
+      height: 8px;
+      background-color: #28a745;
+      border-radius: 50%;
+      animation: livePulse 2s infinite;
+    }
+
+    @keyframes livePulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(40, 167, 69, 0);
+        transform: scale(1.1);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        transform: scale(1);
+      }
+    }
+
+    /* Real-time status badges */
+    .badge.bg-success {
+      animation: fadeInOut 2s infinite;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* Real-time data panel */
+    .card.border-success {
+      border-width: 2px !important;
+      box-shadow: 0 0 10px rgba(40, 167, 69, 0.2);
+    }
+
+    /* Real-time chart updates */
+    .chart-updating {
+      position: relative;
+    }
+
+    .chart-updating::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.1), transparent);
+      border-radius: 8px;
+      animation: shimmer 2s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Connection status indicators */
+    .connection-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.8rem;
+    }
+
+    .connection-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #dc3545;
+    }
+
+    .connection-dot.connected {
+      background-color: #28a745;
+      animation: connectedPulse 3s infinite;
+    }
+
+    @keyframes connectedPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
   </style>
 
@@ -177,16 +353,11 @@
 								</div>
 								<div class="col-12 col-lg-6">
 									<label for="region" class="form-label">Select Region</label>
-									<select class="form-select" id="region" name="region" data-placeholder="Choose a region">
+									<select class="form-select" id="region" name="region" data-placeholder="Choose a region" >
 										<option value="GLOBAL">Global</option>
-										<option value="US">United States</option>
-										<option value="GB">United Kingdom</option>
-										<option value="FR">France</option>
-										<option value="DE">Germany</option>
-										<option value="IT">Italy</option>
-										<option value="TN">Tunisia</option>
-										<option value="CA">Canada</option>
-										<option value="AU">Australia</option>
+										{% for country_code, country_name in countries %}
+											<option value="{{ country_code }}">{{ country_name }}</option>
+										{% endfor %}
 									</select>
 								</div>
 
@@ -257,30 +428,106 @@
 									</div>
 									<div class="card-body">
 										<!-- Chart Type Selector -->
-										<div class="mb-3">
-											<label for="chartTypeSelector" class="form-label">Select Visualization Type:</label>
-											<select class="form-select" id="chartTypeSelector" onchange="switchChartType()">
-												<option value="line">Line Chart</option>
-												<option value="bar">Bar Chart</option>
-												<option value="pie">Pie Chart</option>
-												<option value="area">Area Chart</option>
-											</select>
+										<div class="row mb-3">
+											<div class="col-md-6">
+												<label for="chartTypeSelector" class="form-label">Select Visualization Type:</label>
+												<select class="form-select" id="chartTypeSelector" onchange="switchChartType()">
+													<option value="line">Line Chart</option>
+													<option value="bar">Bar Chart</option>
+													<option value="pie">Pie Chart</option>
+													<option value="area">Area Chart</option>
+												</select>
+											</div>
+											<div class="col-md-6">
+												<label class="form-label">Chart Controls:</label>
+												<div class="d-flex gap-2 mb-2">
+													<button type="button" class="btn btn-outline-primary btn-sm" id="playAnimation" title="Play time-lapse animation">
+														<i class="material-icons-outlined">play_arrow</i> Play
+													</button>
+													<button type="button" class="btn btn-outline-secondary btn-sm" id="pauseAnimation" title="Pause animation" disabled>
+														<i class="material-icons-outlined">pause</i> Pause
+													</button>
+													<button type="button" class="btn btn-outline-info btn-sm" id="resetAnimation" title="Reset to beginning">
+														<i class="material-icons-outlined">replay</i> Reset
+													</button>
+												</div>
+												<div class="d-flex gap-2">
+													<button type="button" class="btn btn-outline-success btn-sm" id="startRealtime" title="Start real-time updates">
+														<i class="material-icons-outlined">sensors</i> Live
+													</button>
+													<button type="button" class="btn btn-outline-danger btn-sm" id="stopRealtime" title="Stop real-time updates" disabled>
+														<i class="material-icons-outlined">stop</i> Stop
+													</button>
+													<span class="badge bg-secondary ms-2" id="realtimeStatus">Offline</span>
+												</div>
+											</div>
+										</div>
+
+										<!-- Animation Progress Bar -->
+										<div class="mb-3" id="animationProgress" style="display: none;">
+											<div class="d-flex justify-content-between align-items-center mb-2">
+												<small class="text-muted">Animation Progress</small>
+												<small class="text-muted" id="animationStatus">Ready to play</small>
+											</div>
+											<div class="progress" style="height: 6px;">
+												<div class="progress-bar bg-primary" role="progressbar" id="progressBar" style="width: 0%"></div>
+											</div>
+										</div>
+
+										<!-- Real-time Data Panel -->
+										<div class="mb-3" id="realtimePanel" style="display: none;">
+											<div class="card border-success">
+												<div class="card-body p-3">
+													<div class="row align-items-center">
+														<div class="col-md-3">
+															<div class="d-flex align-items-center">
+																<div class="live-indicator me-2"></div>
+																<small class="text-success fw-bold">LIVE DATA</small>
+															</div>
+														</div>
+														<div class="col-md-3">
+															<small class="text-muted">Current Value:</small>
+															<div class="fw-bold" id="currentValue">--</div>
+														</div>
+														<div class="col-md-3">
+															<small class="text-muted">Trend:</small>
+															<div class="fw-bold" id="currentTrend">--</div>
+														</div>
+														<div class="col-md-3">
+															<small class="text-muted">Last Update:</small>
+															<div class="small" id="lastUpdate">--</div>
+														</div>
+													</div>
+												</div>
+											</div>
 										</div>
 
 										<!-- Chart Containers -->
 										<div id="lineChartContainer" class="chart-container">
+											<div class="trend-indicator" id="lineTrendIndicator" style="display: none;">
+												<span id="lineTrendText">Analyzing...</span>
+											</div>
 											<canvas id="lineChart" height="300"></canvas>
 										</div>
 
 										<div id="barChartContainer" class="chart-container" style="display:none;">
+											<div class="trend-indicator" id="barTrendIndicator" style="display: none;">
+												<span id="barTrendText">Analyzing...</span>
+											</div>
 											<canvas id="barChart" height="300"></canvas>
 										</div>
 
 										<div id="pieChartContainer" class="chart-container" style="display:none;">
+											<div class="trend-indicator" id="pieTrendIndicator" style="display: none;">
+												<span id="pieTrendText">Analyzing...</span>
+											</div>
 											<canvas id="pieChart" height="300"></canvas>
 										</div>
 
 										<div id="areaChartContainer" class="chart-container" style="display:none;">
+											<div class="trend-indicator" id="areaTrendIndicator" style="display: none;">
+												<span id="areaTrendText">Analyzing...</span>
+											</div>
 											<canvas id="areaChart" height="300"></canvas>
 										</div>
 									</div>
@@ -405,6 +652,14 @@
       document.getElementById(chartType + 'ChartContainer').style.display = 'block';
     }
 
+    // Global variables for animation
+    let animationInterval;
+    let animationSpeed = 800; // milliseconds between frames
+    let isAnimating = false;
+    let currentAnimationStep = 0;
+    let totalAnimationSteps = 0;
+    let chartInstances = {};
+
     // Function to initialize all charts
     function initializeCharts() {
       // Sample data based on the search term
@@ -416,6 +671,7 @@
       {% if has_results %}
         const timeRange = "{{ time_range }}";
         const numPoints = 10; // Number of data points to display
+        totalAnimationSteps = numPoints;
 
         // Generate labels based on time range
         if (timeRange.includes("1-m") || timeRange.includes("month")) {
@@ -503,17 +759,20 @@
           values.push(Math.floor(Math.random() * 80) + 20);
         }
 
-        // Initialize Line Chart
-        initLineChart(labels, values);
+        // Store data globally for animations
+        window.chartData = { labels, values };
 
-        // Initialize Bar Chart
-        initBarChart(labels, values);
+        // Initialize Animated Charts
+        initAnimatedLineChart(labels, values);
+        initAnimatedBarChart(labels, values);
+        initAnimatedPieChart(labels, values);
+        initAnimatedAreaChart(labels, values);
 
-        // Initialize Pie Chart
-        initPieChart(labels, values);
+        // Setup animation controls
+        setupAnimationControls();
 
-        // Initialize Area Chart
-        initAreaChart(labels, values);
+        // Setup real-time controls
+        setupRealtimeControls();
       {% endif %}
     }
 
@@ -694,6 +953,511 @@
         }
       });
     }
+
+    // Animated Chart Functions
+    function initAnimatedLineChart(labels, values) {
+      const ctx = document.getElementById('lineChart').getContext('2d');
+
+      // Create gradient for line chart
+      const gradientStroke = ctx.createLinearGradient(0, 0, 0, 300);
+      gradientStroke.addColorStop(0, '#ff6a00');
+      gradientStroke.addColorStop(1, '#ee0979');
+
+      chartInstances.line = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: '{{ search_term }}',
+            data: [],
+            backgroundColor: 'transparent',
+            borderColor: gradientStroke,
+            borderWidth: 3,
+            pointBackgroundColor: gradientStroke,
+            pointBorderColor: gradientStroke,
+            pointHoverBackgroundColor: gradientStroke,
+            pointHoverBorderColor: gradientStroke,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: true,
+              text: 'Interest Over Time ({{ time_range|title }}) - Animated Line Chart'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              grid: {
+                drawBorder: false
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function initAnimatedBarChart(labels, values) {
+      const ctx = document.getElementById('barChart').getContext('2d');
+
+      // Create gradient for bar chart
+      const gradientStroke = ctx.createLinearGradient(0, 0, 0, 300);
+      gradientStroke.addColorStop(0, '#005bea');
+      gradientStroke.addColorStop(1, '#00c6fb');
+
+      chartInstances.bar = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{
+            label: '{{ search_term }}',
+            data: [],
+            backgroundColor: gradientStroke,
+            borderColor: gradientStroke,
+            borderWidth: 1,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: true,
+              text: 'Interest Over Time ({{ time_range|title }}) - Animated Bar Chart'
+            }
+          }
+        }
+      });
+    }
+
+    function initAnimatedPieChart(labels, values) {
+      const ctx = document.getElementById('pieChart').getContext('2d');
+
+      // Define colors for pie chart
+      const pieColors = [
+        '#0d6efd', '#6f42c1', '#d63384', '#fd7e14', '#15ca20',
+        '#20c997', '#ffc107', '#dc3545', '#6c757d', '#f8f9fa'
+      ];
+
+      chartInstances.pie = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: [],
+          datasets: [{
+            label: '{{ search_term }}',
+            data: [],
+            backgroundColor: pieColors,
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: true,
+              text: 'Interest Distribution ({{ time_range|title }}) - Animated Pie Chart'
+            }
+          }
+        }
+      });
+    }
+
+    function initAnimatedAreaChart(labels, values) {
+      const ctx = document.getElementById('areaChart').getContext('2d');
+
+      // Create gradient for area chart
+      const gradientStroke = ctx.createLinearGradient(0, 0, 0, 300);
+      gradientStroke.addColorStop(0, 'rgba(2, 194, 122, 0.8)');
+      gradientStroke.addColorStop(1, 'rgba(2, 194, 122, 0.1)');
+
+      chartInstances.area = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: '{{ search_term }}',
+            data: [],
+            fill: true,
+            backgroundColor: gradientStroke,
+            borderColor: '#02c27a',
+            borderWidth: 2,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: true,
+              text: 'Interest Over Time ({{ time_range|title }}) - Animated Area Chart'
+            }
+          }
+        }
+      });
+    }
+
+    // Animation Control Functions
+    function setupAnimationControls() {
+      const playBtn = document.getElementById('playAnimation');
+      const pauseBtn = document.getElementById('pauseAnimation');
+      const resetBtn = document.getElementById('resetAnimation');
+      const progressBar = document.getElementById('progressBar');
+      const animationStatus = document.getElementById('animationStatus');
+      const animationProgress = document.getElementById('animationProgress');
+
+      playBtn.addEventListener('click', startAnimation);
+      pauseBtn.addEventListener('click', pauseAnimation);
+      resetBtn.addEventListener('click', resetAnimation);
+
+      // Show animation controls
+      animationProgress.style.display = 'block';
+    }
+
+    function startAnimation() {
+      if (isAnimating) return;
+
+      isAnimating = true;
+      document.getElementById('playAnimation').disabled = true;
+      document.getElementById('pauseAnimation').disabled = false;
+      document.getElementById('animationStatus').textContent = 'Playing animation...';
+
+      // Add animating class to containers
+      document.querySelectorAll('.chart-container').forEach(container => {
+        container.classList.add('animating');
+      });
+
+      animationInterval = setInterval(() => {
+        if (currentAnimationStep >= totalAnimationSteps) {
+          completeAnimation();
+          return;
+        }
+
+        // Update all charts with new data point
+        updateChartsWithStep(currentAnimationStep);
+
+        // Update progress
+        const progress = ((currentAnimationStep + 1) / totalAnimationSteps) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+
+        // Update trend indicators
+        updateTrendIndicators(currentAnimationStep);
+
+        currentAnimationStep++;
+      }, animationSpeed);
+    }
+
+    function pauseAnimation() {
+      if (!isAnimating) return;
+
+      clearInterval(animationInterval);
+      isAnimating = false;
+      document.getElementById('playAnimation').disabled = false;
+      document.getElementById('pauseAnimation').disabled = true;
+      document.getElementById('animationStatus').textContent = 'Animation paused';
+
+      // Remove animating class
+      document.querySelectorAll('.chart-container').forEach(container => {
+        container.classList.remove('animating');
+      });
+    }
+
+    function resetAnimation() {
+      pauseAnimation();
+      currentAnimationStep = 0;
+      document.getElementById('progressBar').style.width = '0%';
+      document.getElementById('animationStatus').textContent = 'Ready to play';
+
+      // Reset all charts
+      Object.keys(chartInstances).forEach(chartType => {
+        chartInstances[chartType].data.labels = [];
+        chartInstances[chartType].data.datasets[0].data = [];
+        chartInstances[chartType].update('none');
+      });
+
+      // Hide trend indicators
+      document.querySelectorAll('.trend-indicator').forEach(indicator => {
+        indicator.style.display = 'none';
+      });
+    }
+
+    function completeAnimation() {
+      clearInterval(animationInterval);
+      isAnimating = false;
+      document.getElementById('playAnimation').disabled = false;
+      document.getElementById('pauseAnimation').disabled = true;
+      document.getElementById('animationStatus').textContent = 'Animation complete';
+      document.getElementById('progressBar').style.width = '100%';
+
+      // Remove animating class
+      document.querySelectorAll('.chart-container').forEach(container => {
+        container.classList.remove('animating');
+      });
+
+      // Show final trend analysis
+      showFinalTrendAnalysis();
+    }
+
+    function updateChartsWithStep(step) {
+      const { labels, values } = window.chartData;
+
+      // Add next data point to each chart
+      Object.keys(chartInstances).forEach(chartType => {
+        const chart = chartInstances[chartType];
+
+        if (step < labels.length) {
+          chart.data.labels.push(labels[step]);
+
+          if (chartType === 'pie') {
+            // For pie chart, show cumulative data
+            chart.data.datasets[0].data.push(values[step]);
+          } else {
+            chart.data.datasets[0].data.push(values[step]);
+          }
+
+          chart.update('none');
+        }
+      });
+    }
+
+    function updateTrendIndicators(step) {
+      if (step < 2) return; // Need at least 2 points to determine trend
+
+      const { values } = window.chartData;
+      const currentValue = values[step];
+      const previousValue = values[step - 1];
+
+      let trendClass, trendText;
+
+      if (currentValue > previousValue * 1.05) {
+        trendClass = 'trend-up';
+        trendText = '↗ Trending Up';
+      } else if (currentValue < previousValue * 0.95) {
+        trendClass = 'trend-down';
+        trendText = '↘ Trending Down';
+      } else {
+        trendClass = 'trend-stable';
+        trendText = '→ Stable';
+      }
+
+      // Update all visible trend indicators
+      const activeContainer = document.querySelector('.chart-container:not([style*="display: none"])');
+      if (activeContainer) {
+        const indicator = activeContainer.querySelector('.trend-indicator');
+        const textElement = indicator.querySelector('span');
+
+        indicator.className = `trend-indicator ${trendClass}`;
+        textElement.textContent = trendText;
+        indicator.style.display = 'block';
+      }
+    }
+
+    function showFinalTrendAnalysis() {
+      const { values } = window.chartData;
+      const firstValue = values[0];
+      const lastValue = values[values.length - 1];
+      const change = ((lastValue - firstValue) / firstValue * 100).toFixed(1);
+
+      let finalTrendClass, finalTrendText;
+
+      if (change > 5) {
+        finalTrendClass = 'trend-up';
+        finalTrendText = `📈 Overall Growth: +${change}%`;
+      } else if (change < -5) {
+        finalTrendClass = 'trend-down';
+        finalTrendText = `📉 Overall Decline: ${change}%`;
+      } else {
+        finalTrendClass = 'trend-stable';
+        finalTrendText = `📊 Stable Trend: ${change}%`;
+      }
+
+      // Show final analysis on active chart
+      const activeContainer = document.querySelector('.chart-container:not([style*="display: none"])');
+      if (activeContainer) {
+        const indicator = activeContainer.querySelector('.trend-indicator');
+        const textElement = indicator.querySelector('span');
+
+        indicator.className = `trend-indicator ${finalTrendClass}`;
+        textElement.textContent = finalTrendText;
+        indicator.style.display = 'block';
+      }
+    }
+
+    // Real-time update variables
+    let realtimeInterval;
+    let isRealtimeActive = false;
+    let realtimeUpdateCount = 0;
+
+    // Real-time control functions
+    function startRealtime() {
+      if (isRealtimeActive) return;
+
+      isRealtimeActive = true;
+      realtimeUpdateCount = 0;
+
+      // Update UI
+      document.getElementById('startRealtime').disabled = true;
+      document.getElementById('stopRealtime').disabled = false;
+      document.getElementById('realtimeStatus').textContent = 'Live';
+      document.getElementById('realtimeStatus').className = 'badge bg-success ms-2';
+      document.getElementById('realtimePanel').style.display = 'block';
+
+      // Start real-time updates every 3 seconds
+      realtimeInterval = setInterval(updateRealtimeData, 3000);
+
+      // Initial update
+      updateRealtimeData();
+
+      console.log('Real-time updates started');
+    }
+
+    function stopRealtime() {
+      if (!isRealtimeActive) return;
+
+      isRealtimeActive = false;
+      clearInterval(realtimeInterval);
+
+      // Update UI
+      document.getElementById('startRealtime').disabled = false;
+      document.getElementById('stopRealtime').disabled = true;
+      document.getElementById('realtimeStatus').textContent = 'Offline';
+      document.getElementById('realtimeStatus').className = 'badge bg-secondary ms-2';
+      document.getElementById('realtimePanel').style.display = 'none';
+
+      // Remove chart updating effects
+      document.querySelectorAll('.chart-container').forEach(container => {
+        container.classList.remove('chart-updating');
+      });
+
+      console.log('Real-time updates stopped');
+    }
+
+    function updateRealtimeData() {
+      if (!isRealtimeActive) return;
+
+      realtimeUpdateCount++;
+
+      // Generate new random data point
+      const newValue = Math.floor(Math.random() * 80) + 20;
+      const currentTime = new Date();
+      const timeLabel = currentTime.toLocaleTimeString();
+
+      // Update current value display
+      document.getElementById('currentValue').textContent = newValue;
+      document.getElementById('lastUpdate').textContent = currentTime.toLocaleTimeString();
+
+      // Calculate trend
+      const { values } = window.chartData;
+      if (values && values.length > 0) {
+        const lastValue = values[values.length - 1];
+        let trendText, trendClass;
+
+        if (newValue > lastValue * 1.05) {
+          trendText = '↗ Rising';
+          trendClass = 'text-success';
+        } else if (newValue < lastValue * 0.95) {
+          trendText = '↘ Falling';
+          trendClass = 'text-danger';
+        } else {
+          trendText = '→ Stable';
+          trendClass = 'text-muted';
+        }
+
+        const trendElement = document.getElementById('currentTrend');
+        trendElement.textContent = trendText;
+        trendElement.className = `fw-bold ${trendClass}`;
+      }
+
+      // Add visual updating effect to charts
+      document.querySelectorAll('.chart-container').forEach(container => {
+        container.classList.add('chart-updating');
+        setTimeout(() => {
+          container.classList.remove('chart-updating');
+        }, 2000);
+      });
+
+      // Update charts with new data point
+      updateChartsRealtime(newValue, timeLabel);
+
+      console.log(`Real-time update #${realtimeUpdateCount}: ${newValue} at ${timeLabel}`);
+    }
+
+    function updateChartsRealtime(newValue, timeLabel) {
+      // Update all chart instances with new data
+      Object.keys(chartInstances).forEach(chartType => {
+        const chart = chartInstances[chartType];
+
+        if (chart && chart.data) {
+          // Add new data point
+          chart.data.labels.push(timeLabel);
+          chart.data.datasets[0].data.push(newValue);
+
+          // Keep only last 10 data points for real-time view
+          if (chart.data.labels.length > 10) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+          }
+
+          // Update chart without animation
+          chart.update('none');
+        }
+      });
+
+      // Update global data for consistency
+      if (window.chartData) {
+        window.chartData.values.push(newValue);
+        window.chartData.labels.push(timeLabel);
+
+        // Keep only last 10 points
+        if (window.chartData.values.length > 10) {
+          window.chartData.values.shift();
+          window.chartData.labels.shift();
+        }
+      }
+    }
+
+    // Setup real-time controls
+    function setupRealtimeControls() {
+      document.getElementById('startRealtime').addEventListener('click', startRealtime);
+      document.getElementById('stopRealtime').addEventListener('click', stopRealtime);
+
+      // Stop real-time when animation starts
+      document.getElementById('playAnimation').addEventListener('click', () => {
+        if (isRealtimeActive) {
+          stopRealtime();
+        }
+      });
+    }
   </script>
 
   <!-- jQuery UI for autocomplete -->
@@ -858,8 +1622,10 @@
       };
     });
 
-    
+
   </script>
+
+
 
 </body>
 

@@ -1,0 +1,229 @@
+{% load static %}
+<!doctype html>
+<html lang="en" data-bs-theme="blue-theme">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Google Trends API | Cancel Subscription</title>
+  <!--favicon-->
+  <link rel="icon" href="{% static 'images/favicon-32x32.png' %}" type="image/png">
+  <!-- loader-->
+  <link href="{% static 'css/pace.min.css' %}" rel="stylesheet">
+  <script src="{% static 'js/pace.min.js' %}"></script>
+
+  <!--plugins-->
+  <link href="{% static 'plugins/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{% static 'plugins/metismenu/metisMenu.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'plugins/metismenu/mm-vertical.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'plugins/simplebar/css/simplebar.css' %}">
+  <!--bootstrap css-->
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+  <!--main css-->
+  <link href="{% static 'css/bootstrap-extended.css' %}" rel="stylesheet">
+  <link href="{% static 'css/main.css' %}" rel="stylesheet">
+  <link href="{% static 'css/dark-theme.css' %}" rel="stylesheet">
+  <link href="{% static 'css/blue-theme.css' %}" rel="stylesheet">
+  <link href="{% static 'css/semi-dark.css' %}" rel="stylesheet">
+  <link href="{% static 'css/bordered-theme.css' %}" rel="stylesheet">
+  <link href="{% static 'css/responsive.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+
+  {% include 'components/header.html' %}
+  {% include 'components/sidebar.html' %}
+
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Subscription</div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="bx bx-home-alt"></i></a></li>
+              <li class="breadcrumb-item"><a href="{% url 'profile' %}">Profile</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Cancel Subscription</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+      <!--end breadcrumb-->
+
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'info' %}info{% elif message.tags == 'success' %}success{% else %}secondary{% endif %} alert-dismissible fade show">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+          <div class="card rounded-4">
+            <div class="card-header bg-danger text-white">
+              <div class="d-flex align-items-center">
+                <span class="material-icons-outlined me-2">warning</span>
+                <h5 class="mb-0">Cancel Subscription</h5>
+              </div>
+            </div>
+            <div class="card-body p-4">
+              <div class="text-center mb-4">
+                <span class="material-icons-outlined text-danger" style="font-size: 4rem;">cancel</span>
+                <h4 class="mt-3">Are you sure you want to cancel?</h4>
+                <p class="text-muted">You're about to cancel your {{ plan_name }} subscription.</p>
+              </div>
+
+              <div class="alert alert-warning">
+                <h6 class="alert-heading">What happens when you cancel:</h6>
+                <ul class="mb-0">
+                  <li>Your subscription will be cancelled immediately</li>
+                  <li>You'll be downgraded to the Free Plan (3 searches per month)</li>
+                  <li>You'll lose access to premium features</li>
+                  <li>Your search history will be preserved</li>
+                  <li>You can reactivate your subscription anytime</li>
+                </ul>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="card border-danger">
+                    <div class="card-body text-center">
+                      <h6 class="text-danger">Current Plan</h6>
+                      <h4>{{ plan_name }}</h4>
+                      <p class="text-muted">{{ user_plan.max_searches }} searches available</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card border-secondary">
+                    <div class="card-body text-center">
+                      <h6 class="text-secondary">After Cancellation</h6>
+                      <h4>Free Plan</h4>
+                      <p class="text-muted">3 searches available</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-center gap-3 mt-4">
+                <a href="{% url 'profile' %}" class="btn btn-secondary px-4">
+                  <i class="material-icons-outlined me-1">arrow_back</i>
+                  Keep Subscription
+                </a>
+                <button type="button" class="btn btn-danger px-4" id="confirmCancelBtn">
+                  <i class="material-icons-outlined me-1">cancel</i>
+                  Yes, Cancel Subscription
+                </button>
+              </div>
+
+              <!-- Loading state -->
+              <div id="loadingState" class="text-center mt-3" style="display: none;">
+                <div class="spinner-border text-danger" role="status">
+                  <span class="visually-hidden">Processing...</span>
+                </div>
+                <p class="mt-2 text-muted">Processing your cancellation...</p>
+              </div>
+
+              <!-- Success/Error messages -->
+              <div id="resultMessage" class="mt-3" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <!--end main wrapper-->
+
+  <!--start overlay-->
+  <div class="overlay btn-toggle"></div>
+  <!--end overlay-->
+
+  <!--start footer-->
+  <footer class="page-footer">
+    <p class="mb-0">Copyright © 2024. All right reserved.</p>
+  </footer>
+  <!--top footer-->
+
+  <!--bootstrap js-->
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+  <!--plugins-->
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'plugins/perfect-scrollbar/js/perfect-scrollbar.js' %}"></script>
+  <script src="{% static 'plugins/metismenu/metisMenu.min.js' %}"></script>
+  <script src="{% static 'plugins/simplebar/js/simplebar.min.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+
+  <script>
+    document.getElementById('confirmCancelBtn').addEventListener('click', function() {
+      // Show loading state
+      document.getElementById('loadingState').style.display = 'block';
+      this.disabled = true;
+
+      // Make AJAX request to cancel subscription
+      fetch('{% url "process_cancellation" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Hide loading state
+        document.getElementById('loadingState').style.display = 'none';
+        
+        const resultDiv = document.getElementById('resultMessage');
+        resultDiv.style.display = 'block';
+        
+        if (data.success) {
+          resultDiv.innerHTML = `
+            <div class="alert alert-success">
+              <h6 class="alert-heading">Subscription Cancelled Successfully!</h6>
+              <p class="mb-0">${data.message}</p>
+            </div>
+          `;
+          
+          // Redirect to profile after 3 seconds
+          setTimeout(() => {
+            window.location.href = '{% url "profile" %}';
+          }, 3000);
+        } else {
+          resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+              <h6 class="alert-heading">Cancellation Failed</h6>
+              <p class="mb-0">${data.error}</p>
+            </div>
+          `;
+          this.disabled = false;
+        }
+      })
+      .catch(error => {
+        // Hide loading state
+        document.getElementById('loadingState').style.display = 'none';
+        
+        const resultDiv = document.getElementById('resultMessage');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+          <div class="alert alert-danger">
+            <h6 class="alert-heading">Error</h6>
+            <p class="mb-0">An unexpected error occurred. Please try again.</p>
+          </div>
+        `;
+        this.disabled = false;
+      });
+    });
+  </script>
+
+</body>
+
+</html>

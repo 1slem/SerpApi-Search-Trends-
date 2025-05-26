@@ -31,6 +31,105 @@
   <link href="{% static 'css/bordered-theme.css' %}" rel="stylesheet">
   <link href="{% static 'css/responsive.css' %}" rel="stylesheet">
 
+  <style>
+    /* Real-time delete animations and styles */
+    .table-danger {
+      background-color: #f8d7da !important;
+      transition: all 0.3s ease;
+    }
+
+    .delete-single-btn {
+      transition: all 0.2s ease;
+    }
+
+    .delete-single-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+    }
+
+    .search-checkbox {
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+
+    .search-checkbox:checked {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+    }
+
+    /* Loading states */
+    .btn-loading {
+      position: relative;
+      pointer-events: none;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: 50%;
+      left: 50%;
+      margin-left: -8px;
+      margin-top: -8px;
+      border: 2px solid transparent;
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Selection highlight */
+    tr.selected {
+      background-color: #e3f2fd !important;
+    }
+
+    /* Delete controls animation */
+    #deleteControls {
+      transition: all 0.3s ease;
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+
+    #deleteControls.show {
+      transform: translateY(0);
+      opacity: 1;
+      display: flex !important;
+    }
+
+    /* Success/Error message animations */
+    .alert {
+      animation: slideInDown 0.3s ease;
+    }
+
+    @keyframes slideInDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Hover effects for table rows */
+    tbody tr:hover {
+      background-color: #f8f9fa;
+      transition: background-color 0.2s ease;
+    }
+
+    /* Selected count badge */
+    #selectedCount {
+      font-weight: 600;
+      color: #0d6efd;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -55,7 +154,11 @@
         </div>
       </div>
       <!--end breadcrumb-->
-      
+
+      <!-- Toast Container -->
+      <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+      </div>
+
       <div class="card">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between mb-3">
@@ -65,29 +168,63 @@
               <a href="{% url 'search_trends' %}" class="btn btn-sm btn-primary ms-2">New Search</a>
             </div>
           </div>
+
+          <!-- Delete Controls -->
+          <div class="d-flex align-items-center justify-content-between mb-3" id="deleteControls" style="display: none !important;">
+            <div class="d-flex align-items-center gap-2">
+              <span id="selectedCount" class="text-muted">0 selected</span>
+              <button type="button" class="btn btn-sm btn-danger" id="deleteSelectedBtn" disabled>
+                <i class="material-icons-outlined me-1">delete</i>
+                Delete Selected
+              </button>
+              <button type="button" class="btn btn-sm btn-secondary" id="selectAllBtn">
+                <i class="material-icons-outlined me-1">select_all</i>
+                Select All
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSelectionBtn">
+                <i class="material-icons-outlined me-1">clear</i>
+                Clear Selection
+              </button>
+            </div>
+          </div>
           <div class="table-responsive">
             <table id="example2" class="table table-striped table-bordered">
               <thead>
                 <tr>
+                  <th width="50">
+                    <input type="checkbox" id="selectAllCheckbox" class="form-check-input">
+                  </th>
                   <th>Search Term</th>
                   <th>Country</th>
                   <th>Time Range</th>
                   <th>Platform</th>
                   <th>Search Date</th>
+                  <th width="100">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {% for search in searches %}
                 <tr>
+                  <td>
+                    <input type="checkbox" class="form-check-input search-checkbox" value="{{ search.id }}" data-search-term="{{ search.search_term }}">
+                  </td>
                   <td>{{ search.search_term }}</td>
                   <td>{{ search.country|default:"Global" }}</td>
                   <td>{{ search.time_range|default:"Last 12 Months" }}</td>
                   <td>{{ search.platform|default:"Web" }}</td>
                   <td>{{ search.search_date|date:"Y-m-d H:i" }}</td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-outline-danger delete-single-btn"
+                            data-search-id="{{ search.id }}"
+                            data-search-term="{{ search.search_term }}"
+                            title="Delete this search">
+                      <i class="material-icons-outlined">delete</i>
+                    </button>
+                  </td>
                 </tr>
                 {% empty %}
                 <tr>
-                  <td colspan="5" class="text-center">No search history found. <a href="{% url 'search_trends' %}">Start searching</a>!</td>
+                  <td colspan="7" class="text-center">No search history found. <a href="{% url 'search_trends' %}">Start searching</a>!</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -120,26 +257,225 @@
   <script src="{% static 'plugins/datatable/js/jquery.dataTables.min.js' %}"></script>
   <script src="{% static 'plugins/datatable/js/dataTables.bootstrap5.min.js' %}"></script>
   <script src="{% static 'js/main.js' %}"></script>
-  
+
   <script>
     $(document).ready(function() {
-      $('#search-history-table').DataTable({
-        "order": [[4, "desc"]], // Sort by search date (column 4) in descending order
-        "lengthMenu": [10, 25, 50, 100],
-        "language": {
-          "emptyTable": "No search history found"
+      // Initialize DataTable
+      var table = $('#example2').DataTable({
+        lengthChange: false,
+        buttons: ['copy', 'excel', 'pdf', 'print'],
+        "order": [[5, "desc"]], // Sort by search date (column 5) in descending order
+        "columnDefs": [
+          { "orderable": false, "targets": [0, 6] } // Disable sorting for checkbox and actions columns
+        ]
+      });
+
+      table.buttons().container()
+        .appendTo('#example2_wrapper .col-md-6:eq(0)');
+
+      // Track selected items
+      let selectedItems = new Set();
+
+      // Update UI based on selection
+      function updateSelectionUI() {
+        const count = selectedItems.size;
+        $('#selectedCount').text(count + ' selected');
+        $('#deleteSelectedBtn').prop('disabled', count === 0);
+
+        if (count > 0) {
+          if (!$('#deleteControls').is(':visible')) {
+            $('#deleteControls').addClass('show').slideDown(300);
+          }
+        } else {
+          if ($('#deleteControls').is(':visible')) {
+            $('#deleteControls').removeClass('show').slideUp(300);
+          }
+        }
+      }
+
+      // Handle individual checkbox changes
+      $(document).on('change', '.search-checkbox', function() {
+        const searchId = $(this).val();
+        const $row = $(this).closest('tr');
+
+        if ($(this).is(':checked')) {
+          selectedItems.add(searchId);
+          $row.addClass('selected');
+        } else {
+          selectedItems.delete(searchId);
+          $row.removeClass('selected');
+          $('#selectAllCheckbox').prop('checked', false);
+        }
+        updateSelectionUI();
+      });
+
+      // Handle select all checkbox
+      $('#selectAllCheckbox').on('change', function() {
+        const isChecked = $(this).is(':checked');
+        $('.search-checkbox').prop('checked', isChecked);
+
+        selectedItems.clear();
+        if (isChecked) {
+          $('.search-checkbox').each(function() {
+            selectedItems.add($(this).val());
+            $(this).closest('tr').addClass('selected');
+          });
+        } else {
+          $('.search-checkbox').each(function() {
+            $(this).closest('tr').removeClass('selected');
+          });
+        }
+        updateSelectionUI();
+      });
+
+      // Select All button
+      $('#selectAllBtn').on('click', function() {
+        $('#selectAllCheckbox').prop('checked', true).trigger('change');
+      });
+
+      // Clear Selection button
+      $('#clearSelectionBtn').on('click', function() {
+        $('#selectAllCheckbox').prop('checked', false).trigger('change');
+      });
+
+      // Delete selected items
+      $('#deleteSelectedBtn').on('click', function() {
+        if (selectedItems.size === 0) return;
+
+        const count = selectedItems.size;
+        const message = count === 1 ?
+          'Are you sure you want to delete this search?' :
+          `Are you sure you want to delete ${count} searches?`;
+
+        if (confirm(message)) {
+          const searchIds = Array.from(selectedItems);
+
+          // Show loading state
+          $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Deleting...');
+
+          $.ajax({
+            url: '{% url "delete_search_history" %}',
+            method: 'POST',
+            data: {
+              'search_ids[]': searchIds,
+              'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+              if (response.success) {
+                // Add fade-out animation before removing rows
+                searchIds.forEach(function(id) {
+                  const $row = $(`input[value="${id}"]`).closest('tr');
+                  $row.addClass('table-danger').fadeOut(300, function() {
+                    // Remove the row from DataTable
+                    table.row($row).remove();
+                  });
+                });
+
+                selectedItems.clear();
+                updateSelectionUI();
+                $('#selectAllCheckbox').prop('checked', false);
+
+                // Show success message
+                showMessage('success', response.message);
+
+                // Redraw table after animation
+                setTimeout(function() {
+                  table.draw();
+                }, 350);
+              } else {
+                showMessage('error', response.error);
+              }
+            },
+            error: function() {
+              showMessage('error', 'An error occurred while deleting searches.');
+            },
+            complete: function() {
+              $('#deleteSelectedBtn').prop('disabled', false).html('<i class="material-icons-outlined me-1">delete</i>Delete Selected');
+            }
+          });
         }
       });
+
+      // Delete single item
+      $(document).on('click', '.delete-single-btn', function() {
+        const searchId = $(this).data('search-id');
+        const searchTerm = $(this).data('search-term');
+
+        if (confirm(`Are you sure you want to delete the search "${searchTerm}"?`)) {
+          const $btn = $(this);
+          const $row = $btn.closest('tr');
+
+          // Show loading state
+          $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+          $.ajax({
+            url: `{% url "delete_single_search" 0 %}`.replace('0', searchId),
+            method: 'POST',
+            data: {
+              'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+              if (response.success) {
+                // Add fade-out animation before removing row
+                $row.addClass('table-danger').fadeOut(300, function() {
+                  // Remove the row from DataTable
+                  table.row($row).remove().draw();
+                });
+
+                // Remove from selected items if it was selected
+                selectedItems.delete(searchId.toString());
+                updateSelectionUI();
+
+                // Show success message
+                showMessage('success', response.message);
+              } else {
+                showMessage('error', response.error);
+                $btn.prop('disabled', false).html('<i class="material-icons-outlined">delete</i>');
+              }
+            },
+            error: function() {
+              showMessage('error', 'An error occurred while deleting the search.');
+              $btn.prop('disabled', false).html('<i class="material-icons-outlined">delete</i>');
+            }
+          });
+        }
+      });
+
+      // Show message function with toast notifications
+      function showMessage(type, message) {
+        const toastId = 'toast-' + Date.now();
+        const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+        const icon = type === 'success' ? 'check_circle' : 'error';
+
+        const toastHtml = `
+          <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+              <div class="toast-body d-flex align-items-center">
+                <i class="material-icons-outlined me-2">${icon}</i>
+                ${message}
+              </div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+          </div>
+        `;
+
+        // Add toast to container
+        $('.toast-container').append(toastHtml);
+
+        // Initialize and show toast
+        const toast = new bootstrap.Toast(document.getElementById(toastId), {
+          autohide: true,
+          delay: 4000
+        });
+
+        toast.show();
+
+        // Remove toast element after it's hidden
+        document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
+          $(this).remove();
+        });
+      }
     });
-    $(document).ready(function() {
-			var table = $('#example2').DataTable( {
-				lengthChange: false,
-				buttons: [ 'copy', 'excel', 'pdf', 'print']
-			} );
-		 
-			table.buttons().container()
-				.appendTo( '#example2_wrapper .col-md-6:eq(0)' );
-		} );
   </script>
 
 </body>
