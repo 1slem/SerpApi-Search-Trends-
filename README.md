@@ -1,6 +1,6 @@
-# Google Trends Analytics Platform
+# TrendSerpAPI
 
-A comprehensive Django-based web application for analyzing Google Trends data with advanced features including user authentication, subscription management, search history tracking, and interactive data visualizations.
+A comprehensive Django-based web application for analyzing Google Trends data with Django and template integration, featuring advanced capabilities including user authentication, subscription management, search history tracking, and interactive data visualizations.
 
 ## 🚀 Features
 
@@ -70,7 +70,7 @@ A comprehensive Django-based web application for analyzing Google Trends data wi
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd MyGoogleTrends
+   cd TrendSerpAPI
    ```
 
 2. **Create and activate virtual environment**
@@ -101,7 +101,7 @@ A comprehensive Django-based web application for analyzing Google Trends data wi
 
 5. **Run database migrations**
    ```bash
-   cd GoogleTrendsAPI
+   cd SerpApi-Search-Trends
    python manage.py makemigrations
    python manage.py migrate
    ```
@@ -148,8 +148,8 @@ A comprehensive Django-based web application for analyzing Google Trends data wi
 ## 📁 Project Structure
 
 ```
-MyGoogleTrends/
-├── GoogleTrendsAPI/
+TrendSerpAPI/
+├── SerpApi-Search-Trends/
 │   ├── GoogleTrendsAPI/          # Main project settings
 │   ├── accounts/                 # User authentication app
 │   ├── trends/                   # Core trends functionality
