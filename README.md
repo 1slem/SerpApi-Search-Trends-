@@ -171,17 +171,6 @@ TrendSerpAPI/
 4. Select region, time range, and platform
 5. View interactive charts and data
 
-### Managing Subscriptions
-1. Go to the pricing page
-2. Select a plan (Basic or Premium)
-3. Complete payment through Stripe
-4. Enjoy increased search limits
-
-### Search History
-1. Access your search history from the sidebar
-2. View all previous searches with details
-3. Delete individual or multiple searches
-4. Export history to PDF
 
 ## 🔒 Security Features
 
@@ -207,24 +196,6 @@ The application supports multiple themes:
 - **Stripe API**: For payment processing and subscription management
 - **Google OAuth API**: For social authentication
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-For support and questions:
-- Use the built-in contact form in the application
-- Create an issue in the repository
-- Email: support@yourdomain.com
 
 ## 🔄 Version History
 
